@@ -1,65 +1,86 @@
-variable "project" {}
+variable "project" {
+  description = "Name of the project"
+}
 
-variable "environment" {}
+variable "environment" {
+  description = "Name of the environment where to deploy Vault (just for naming reasons)"
+}
 
 variable "lb_internal" {
-  default = false
+  description = "Should the ALB be created as an internal Loadbalancer"
+  default     = false
 }
 
 variable "dns_root" {
-  default = "production.skyscrape.rs"
+  description = "The root domain to configure for vault"
+  default     = "production.skyscrape.rs"
 }
 
 variable "download_url_vault" {
+  description = "The download url for vault"
   default     = "https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip"
-  description = "URL to download Vault"
 }
 
 variable "download_url_teleport" {
-  description = "String(optional): The download url for Teleport."
+  description = "The download url for Teleport"
   default     = "https://github.com/gravitational/teleport/releases/download/v2.3.5/teleport-v2.3.5-linux-amd64-bin.tar.gz"
 }
 
 variable "teleport_auth_server" {
-  description = "String(optional): The hostname or ip of the Teleport auth server."
+  description = "The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default)."
   default     = ""
 }
 
 variable "teleport_token_1" {
-  description = "String(optional): The Teleport token for the first instance. This can be a dynamic short-lived token."
+  description = "The Teleport token for the first instance. This can be a dynamic short-lived token"
   default     = ""
 }
 
 variable "teleport_token_2" {
-  description = "String(optional): The Teleport token for the second instance. This can be a dynamic short-lived token."
+  description = "The Teleport token for the second instance. This can be a dynamic short-lived token"
   default     = ""
 }
 
 variable "teleport_node_sg" {
-  description = "String(optional): The security-group ID of the teleport server."
+  description = "The security-group ID of the teleport server"
   default     = ""
 }
 
 variable "instance_type" {
-  default = "t2.micro"
+  description = "The instance type to use for the vault servers"
+  default     = "t2.micro"
 }
 
-variable "ami" {}
+variable "ami" {
+  description = "The AMI ID to use for the vault instances"
+}
 
-variable "vault1_subnet" {}
+variable "vault1_subnet" {
+  description = "The subnet ID for the first vault instance"
+}
 
-variable "vault2_subnet" {}
+variable "vault2_subnet" {
+  description = "The subnet ID for the second vault instance"
+}
 
-variable "acm_arn" {}
+variable "acm_arn" {
+  description = "The ACM ARN to use on the alb"
+}
 
-variable "vpc_id" {}
+variable "vpc_id" {
+  description = "The VPC id to launch the instances in"
+}
 
 variable "lb_subnets" {
-  type = "list"
+  description = "The subnets to use for the alb"
+  type        = "list"
 }
 
 variable "vault_nproc" {
-  default = "1"
+  description = "The amount of nproc to configure vault with. Set this to the amount of CPU cores"
+  default     = "1"
 }
 
-variable "key_name" {}
+variable "key_name" {
+  description = "Name of the sshkey to deploy on the vault instances"
+}
