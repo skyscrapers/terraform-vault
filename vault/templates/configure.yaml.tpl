@@ -79,7 +79,7 @@ ${teleport_service}
     storage "dynamodb" {
       ha_enabled = "true"
       region     = "eu-west-1"
-      table      = "vault-dynamodb-backend"
+      table      = "${dynamodb_table_name}"
     }
 
     listener "tcp" {

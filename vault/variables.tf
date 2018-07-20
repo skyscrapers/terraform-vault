@@ -84,3 +84,28 @@ variable "vault_nproc" {
 variable "key_name" {
   description = "Name of the sshkey to deploy on the vault instances"
 }
+
+variable "enable_dynamodb_autoscaling" {
+  description = "Enables the autoscaling feature on the Vault dynamodb table"
+  default     = "true"
+}
+
+variable "dynamodb_max_read_capacity" {
+  description = "The max read capacity of the Vault dynamodb table"
+  default     = "100"
+}
+
+variable "dynamodb_min_read_capacity" {
+  description = "The min read capacity of the Vault dynamodb table"
+  default     = "5"
+}
+
+variable "dynamodb_max_write_capacity" {
+  description = "The max write capacity of the Vault dynamodb table"
+  default     = "100"
+}
+
+variable "dynamodb_min_write_capacity" {
+  description = "The min write capacity of the Vault dynamodb table"
+  default     = "5"
+}

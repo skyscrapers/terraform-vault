@@ -22,6 +22,11 @@ Two route53 records are provided to access the individual instances.
 | dns_root | The root domain to configure for vault | string | `production.skyscrape.rs` | no |
 | download_url_teleport | The download url for Teleport | string | `https://github.com/gravitational/teleport/releases/download/v2.3.5/teleport-v2.3.5-linux-amd64-bin.tar.gz` | no |
 | download_url_vault | The download url for vault | string | `https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip` | no |
+| dynamodb_max_read_capacity | The max read capacity of the Vault dynamodb table | string | `100` | no |
+| dynamodb_max_write_capacity | The max write capacity of the Vault dynamodb table | string | `100` | no |
+| dynamodb_min_read_capacity | The min read capacity of the Vault dynamodb table | string | `5` | no |
+| dynamodb_min_write_capacity | The min write capacity of the Vault dynamodb table | string | `5` | no |
+| enable_dynamodb_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `true` | no |
 | environment | Name of the environment where to deploy Vault (just for naming reasons) | string | - | yes |
 | instance_type | The instance type to use for the vault servers | string | `t2.micro` | no |
 | key_name | Name of the sshkey to deploy on the vault instances | string | - | yes |
@@ -47,6 +52,7 @@ Two route53 records are provided to access the individual instances.
 | alb_sg_id | The alb security group ID |
 | alb_vault1_target_group | The vault1 target group ARN |
 | alb_vault2_target_group | The vault2 target group ARN |
+| dynamodb_table_name | The Vault dynamodb table name |
 | iam_policy | The iam policy ARN used for vault |
 | sg_id | The vault security-group id |
 | vault1_instance_id | The vault1 instance ID |
