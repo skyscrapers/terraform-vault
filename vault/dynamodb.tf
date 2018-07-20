@@ -36,7 +36,7 @@ resource "aws_appautoscaling_target" "dynamodb_table_read_target" {
   count              = "${var.enable_dynamodb_autoscaling ? 1 : 0}"
   max_capacity       = "${var.dynamodb_max_read_capacity}"
   min_capacity       = "${var.dynamodb_min_read_capacity}"
-  resource_id        = "${aws_dynamodb_table.vault_dynamodb_table.id}"
+  resource_id        = "table/${aws_dynamodb_table.vault_dynamodb_table.name}"
   scalable_dimension = "dynamodb:table:ReadCapacityUnits"
   service_namespace  = "dynamodb"
 }
@@ -45,7 +45,7 @@ resource "aws_appautoscaling_target" "dynamodb_table_write_target" {
   count              = "${var.enable_dynamodb_autoscaling ? 1 : 0}"
   max_capacity       = "${var.dynamodb_max_write_capacity}"
   min_capacity       = "${var.dynamodb_min_write_capacity}"
-  resource_id        = "${aws_dynamodb_table.vault_dynamodb_table.id}"
+  resource_id        = "table/${aws_dynamodb_table.vault_dynamodb_table.name}"
   scalable_dimension = "dynamodb:table:WriteCapacityUnits"
   service_namespace  = "dynamodb"
 }
