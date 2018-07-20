@@ -109,3 +109,8 @@ variable "dynamodb_min_write_capacity" {
   description = "The min write capacity of the Vault dynamodb table"
   default     = "5"
 }
+
+variable "dynamodb_table_name_override" {
+  description = "Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior)"
+  default     = ""
+}

@@ -1,5 +1,5 @@
 locals {
-  dynamodb_table_name = "vault-${var.environment}-${var.project}"
+  dynamodb_table_name = "${var.dynamodb_table_name_override == "" ? format("vault-%s-%s", var.environment, var.project) : var.dynamodb_table_name_override}"
 }
 
 resource "aws_dynamodb_table" "vault_dynamodb_table" {
