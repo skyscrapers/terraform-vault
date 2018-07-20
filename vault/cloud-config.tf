@@ -47,7 +47,8 @@ data "template_file" "cloudconfig_vault1" {
     vault_cluster_dns   = "vault.${var.dns_root}"
     teleport_config     = "${var.teleport_auth_server == "" ? "" : module.teleport_vault1.teleport_config_cloudinit}"
     teleport_service    = "${var.teleport_auth_server == "" ? "" : module.teleport_vault1.teleport_service_cloudinit}"
-    dynamodb_table_name = "${aws_dynamodb_table.vault_dynamodb_table.id}"
+    dynamodb_table_name = "${aws_dynamodb_table.vault_dynamodb_table.name}"
+    le_staging          = "${var.le_staging ? "True" : "False"}"
   }
 }
 
@@ -60,7 +61,8 @@ data "template_file" "cloudconfig_vault2" {
     vault_cluster_dns   = "vault.${var.dns_root}"
     teleport_config     = "${var.teleport_auth_server == "" ? "" : module.teleport_vault2.teleport_config_cloudinit}"
     teleport_service    = "${var.teleport_auth_server == "" ? "" : module.teleport_vault2.teleport_service_cloudinit}"
-    dynamodb_table_name = "${aws_dynamodb_table.vault_dynamodb_table.id}"
+    dynamodb_table_name = "${aws_dynamodb_table.vault_dynamodb_table.name}"
+    le_staging          = "${var.le_staging ? "True" : "False"}"
   }
 }
 

@@ -114,3 +114,8 @@ variable "dynamodb_table_name_override" {
   description = "Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior)"
   default     = ""
 }
+
+variable "le_staging" {
+  description = "Whether to use the LetsEncrypt staging server or not. Recommended when running tests"
+  default     = false
+}

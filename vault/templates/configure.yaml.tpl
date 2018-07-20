@@ -18,7 +18,7 @@ apt:
 
 runcmd:
   - [ pip, install, certbot-dns-route53 ]
-  - [ certbot, certonly, -n, --agree-tos, --email, letsencrypt@skyscrapers.eu, --dns-route53, -d, ${vault_dns} ]
+  - [ certbot, certonly, -n, --agree-tos, --staging, ${le_staging}, --email, letsencrypt@skyscrapers.eu, --dns-route53, -d, ${vault_dns} ]
   - [ chgrp, -R, vault, /etc/letsencrypt ]
   - [ chmod, -R, g=rX, /etc/letsencrypt ]
   - [ systemctl, enable, vault.service ]
@@ -61,7 +61,7 @@ ${teleport_service}
 
     [Service]
     Type=oneshot
-    ExecStart=/usr/bin/certbot renew --quiet --agree-tos --deploy-hook "chgrp -R vault /etc/letsencrypt && chmod -R g=rX /etc/letsencrypt && systemctl reload vault.service"
+    ExecStart=/usr/bin/certbot renew --quiet --agree-tos --staging ${le_staging} --deploy-hook "chgrp -R vault /etc/letsencrypt && chmod -R g=rX /etc/letsencrypt && systemctl reload vault.service"
   path: /etc/systemd/system/certbot.service
 - content: |
     [Unit]
