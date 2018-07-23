@@ -7,3 +7,6 @@
 
 # .tfvars files
 *.tfvars
+
+# Terratest temp dir
+.test-data
