@@ -3,39 +3,211 @@ package test
 import (
 	"testing"
 	"fmt"
+	"time"
 
 	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/gruntwork-io/terratest/modules/retry"
+	"github.com/gruntwork-io/terratest/modules/logger"
+	"github.com/hashicorp/vault/api"
 )
+
+const VAULT_ROOT_ZONE = "test.skyscrape.rs"
+const VAULT_HOSTNAME = "vault.test.skyscrape.rs"
+
+// From: https://www.vaultproject.io/api/system/health.html
+type VaultStatus int
+
+const (
+	Leader        VaultStatus = 200
+	Standby                   = 429
+	Uninitialized             = 501
+	Sealed                    = 503
+)
+
+type VaultCluster struct {
+	main         *api.Client
+	vault1       *api.Client
+	vault2       *api.Client
+	initResponse *api.InitResponse
+}
 
 // An example of how to test the simple Terraform module in examples/terraform-basic-example using Terratest.
 func TestBasicExample(t *testing.T) {
 	t.Parallel()
 
-	uniqueId := random.UniqueId()
-	projectName := fmt.Sprintf("vault-%s", uniqueId)
+	exampleFolder := "../examples/basic"
 
-	terraformOptions := &terraform.Options{
-		// The path to where our Terraform code is located
-		TerraformDir: "../examples/basic",
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, exampleFolder)
+		// At the end of the test, run `terraform destroy` to clean up any resources that were created
+		terraform.Destroy(t, terraformOptions)
+	})
 
-		// Variables to pass to our Terraform code using -var options
-		Vars: map[string]interface{}{
-			"vault_acm_arn": "arn:aws:acm:eu-west-1:847239549153:certificate/3e1518ab-342b-44a2-86ba-a882d9da1fa5",
-			"vault_dns_root": "test.skyscrape.rs",
-			"vault_version": "0.9.3",
-			"project": projectName,
-			"le_staging": true,
-		},
+	test_structure.RunTestStage(t, "deploy", func() {
+		uniqueId := random.UniqueId()
+		projectName := fmt.Sprintf("vault-%s", uniqueId)
 
-		EnvVars: map[string]string{
-			"AWS_DEFAULT_REGION": "eu-west-1",
-		},
+		terraformOptions := &terraform.Options{
+			// The path to where our Terraform code is located
+			TerraformDir: exampleFolder,
+
+			// Variables to pass to our Terraform code using -var options
+			Vars: map[string]interface{}{
+				"vault_acm_arn": "arn:aws:acm:eu-west-1:847239549153:certificate/3e1518ab-342b-44a2-86ba-a882d9da1fa5",
+				"vault_dns_root": VAULT_ROOT_ZONE,
+				"vault_version": "0.9.3",
+				"project": projectName,
+				"le_staging": true,
+				"lb_internal": false,
+			},
+
+			EnvVars: map[string]string{
+				"AWS_DEFAULT_REGION": "eu-west-1",
+			},
+		}
+
+		test_structure.SaveTerraformOptions(t, exampleFolder, terraformOptions)
+
+		// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+		terraform.InitAndApply(t, terraformOptions)
+	})
+
+	test_structure.RunTestStage(t, "validate", func() {
+		initializeAndUnsealVaultCluster(t)
+	})
+}
+
+// Initialize the Vault cluster and unseal each of the nodes by connecting to them over SSH and executing Vault
+// commands. The reason we use SSH rather than using the Vault client remotely is we want to verify that the
+// self-signed TLS certificate is properly configured on each server so when you're on that server, you don't
+// get errors about the certificate being signed by an unknown party.
+func initializeAndUnsealVaultCluster(t *testing.T) {
+	cluster := findVaultClusterNodes(t)
+
+	waitForVaultToBoot(t, cluster)
+	initializeVault(t, &cluster)
+
+	assertStatus(t, cluster.vault1, Sealed)
+	unsealVaultNode(t, cluster.vault1, cluster.initResponse.Keys)
+	assertStatus(t, cluster.vault1, Leader)
+	assertStatus(t, cluster.main, Leader)
+
+	assertStatus(t, cluster.vault2, Sealed)
+	unsealVaultNode(t, cluster.vault2, cluster.initResponse.Keys)
+	assertStatus(t, cluster.vault2, Standby)
+}
+
+// Find the nodes in the given Vault ASG and return them in a VaultCluster struct
+func findVaultClusterNodes(t *testing.T) VaultCluster {
+	main, err := api.NewClient(&api.Config{
+		Address: fmt.Sprintf("https://vault.%s", VAULT_ROOT_ZONE),
+	})
+
+	if err != nil {
+		t.Fatalf("Failed to initialize Vault client for main endpoint")
 	}
 
-	// At the end of the test, run `terraform destroy` to clean up any resources that were created
-	defer terraform.Destroy(t, terraformOptions)
+	vault1, err := api.NewClient(&api.Config{
+		Address: fmt.Sprintf("https://vault1.%s", VAULT_ROOT_ZONE),
+	})
 
-	// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
-	terraform.InitAndApply(t, terraformOptions)
+	if err != nil {
+		t.Fatalf("Failed to initialize Vault client for vault1 endpoint")
+	}
+
+	vault2, err := api.NewClient(&api.Config{
+		Address: fmt.Sprintf("https://vault2.%s", VAULT_ROOT_ZONE),
+	})
+
+	if err != nil {
+		t.Fatalf("Failed to initialize Vault client for vault2 endpoint")
+	}
+
+	return VaultCluster{
+		main: main,
+		vault1: vault1,
+		vault2: vault2,
+	}
+}
+
+// Initialize the Vault cluster, filling in the unseal keys in the given vaultCluster struct
+func initializeVault(t *testing.T, cluster *VaultCluster) {
+	logger.Logf(t, "Initializing the cluster")
+
+	init, err := cluster.main.Sys().Init(&api.InitRequest{
+		SecretShares: 1,
+		SecretThreshold: 1,
+	})
+
+	if err != nil {
+		t.Fatalf("Failed to initialize Vault due to error %v", err)
+	}
+
+	cluster.initResponse = init
+}
+
+// Unseal the given Vault server using the given unseal keys
+func unsealVaultNode(t *testing.T, node *api.Client, unsealKeys []string) {
+	logger.Logf(t, "Unsealing Vault on host %s", node.Address())
+
+	for _, unsealKey := range unsealKeys {
+		if _, err := node.Sys().Unseal(unsealKey); err != nil {
+			t.Fatalf("Error unsealing Vault due to error %v", err)
+		}
+	}
+}
+
+// Wait until the Vault servers are booted the very first time on the EC2 Instance. As a simple solution, we simply
+// wait for the leader to boot and assume if it's up, the other nodes will be too.
+func waitForVaultToBoot(t *testing.T, cluster VaultCluster) {
+	logger.Logf(t, "Waiting for Vault to boot the first time on host %s. Expecting it to be in uninitialized status (%d).", cluster.main.Address(), int(Uninitialized))
+	assertStatus(t, cluster.main, Uninitialized)
+}
+
+// Check that the Vault node at the given host has the given
+func assertStatus(t *testing.T, node *api.Client, expectedStatus VaultStatus) {
+	description := fmt.Sprintf("Check that Vault %s has status %d", node.Address(), int(expectedStatus))
+	logger.Logf(t, description)
+
+	maxRetries := 30
+	sleepBetweenRetries := 10 * time.Second
+
+	out := retry.DoWithRetry(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {
+		return checkStatus(t, node, expectedStatus)
+	})
+
+	logger.Logf(t, out)
+}
+
+// Check the status of the given Vault node and ensure it matches the expected status. Note that we use curl to do the
+// status check so we can ensure that TLS certificates work for curl (and not just the Vault client).
+func checkStatus(t *testing.T, node *api.Client, expectedStatus VaultStatus) (string, error) {
+  health, err := node.Sys().Health()
+
+	if err != nil {
+		return "", err
+	}
+
+	status := buildStatusCode(health)
+	if status == int(expectedStatus) {
+		return fmt.Sprintf("Got expected status code %d", status), nil
+	} else {
+		return "", fmt.Errorf("Expected status code %d, but got %d", int(expectedStatus), status)
+	}
+}
+
+func buildStatusCode(health *api.HealthResponse) (int) {
+	if !health.Initialized {
+		return 501
+	}
+	if health.Sealed {
+		return 503
+	}
+	if health.Standby {
+		return 429
+	}
+
+	return 200
 }
