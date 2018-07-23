@@ -27,7 +27,7 @@ module "ha_vault" {
   dns_root              = "${var.vault_dns_root}"
   instance_type         = "${var.instance_type}"
   vault_nproc           = "1"
-  key_name              = ""
+  key_name              = "${var.key_name}"
   lb_internal           = "${var.lb_internal}"
   download_url_vault    = "https://releases.hashicorp.com/vault/${var.vault_version}/vault_${var.vault_version}_linux_amd64.zip"
   environment           = "test"

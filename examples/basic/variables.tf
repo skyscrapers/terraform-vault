@@ -30,3 +30,7 @@ variable "project" {
 variable "le_staging" {
   default = false
 }
+
+variable "key_name" {
+  default = ""
+}
