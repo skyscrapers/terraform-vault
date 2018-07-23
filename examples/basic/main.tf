@@ -30,6 +30,6 @@ module "ha_vault" {
   key_name              = ""
   lb_internal           = "${var.lb_internal}"
   download_url_vault    = "https://releases.hashicorp.com/vault/${var.vault_version}/vault_${var.vault_version}_linux_amd64.zip"
-  environment           = "${terraform.workspace}"
+  environment           = "test"
   le_staging            = "${var.le_staging}"
 }
