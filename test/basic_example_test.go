@@ -31,10 +31,11 @@ type VaultCluster struct {
 	initResponse *api.InitResponse
 }
 
-// An example of how to test the simple Terraform module in examples/terraform-basic-example using Terratest.
+// An example of how to test the simple Terraform module in examples/basic using Terratest.
 func TestBasicExample(t *testing.T) {
 	t.Parallel()
 
+	// The path to where our Terraform code is located
 	exampleFolder := "../examples/basic"
 
 	defer test_structure.RunTestStage(t, "teardown", func() {
@@ -48,7 +49,6 @@ func TestBasicExample(t *testing.T) {
 		projectName := fmt.Sprintf("vault-%s", uniqueId)
 
 		terraformOptions := &terraform.Options{
-			// The path to where our Terraform code is located
 			TerraformDir: exampleFolder,
 
 			// Variables to pass to our Terraform code using -var options
@@ -77,10 +77,7 @@ func TestBasicExample(t *testing.T) {
 	})
 }
 
-// Initialize the Vault cluster and unseal each of the nodes by connecting to them over SSH and executing Vault
-// commands. The reason we use SSH rather than using the Vault client remotely is we want to verify that the
-// self-signed TLS certificate is properly configured on each server so when you're on that server, you don't
-// get errors about the certificate being signed by an unknown party.
+// Initialize the Vault cluster and unseal each of the nodes via the Vault API
 func initializeAndUnsealVaultCluster(t *testing.T) {
 	cluster := findVaultClusterNodes(t)
 
@@ -97,7 +94,7 @@ func initializeAndUnsealVaultCluster(t *testing.T) {
 	assertStatus(t, cluster.vault2, Standby)
 }
 
-// Find the nodes in the given Vault ASG and return them in a VaultCluster struct
+// Create the api objects for the three vault endpoints: main, vault1 and vault2
 func findVaultClusterNodes(t *testing.T) VaultCluster {
 	main, err := api.NewClient(&api.Config{
 		Address: fmt.Sprintf("https://vault.%s", os.Getenv("TEST_R53_ZONE_NAME")),
@@ -158,7 +155,7 @@ func unsealVaultNode(t *testing.T, node *api.Client, unsealKeys []string) {
 }
 
 // Wait until the Vault servers are booted the very first time on the EC2 Instance. As a simple solution, we simply
-// wait for the leader to boot and assume if it's up, the other nodes will be too.
+// query the Vault api until it gives the correct response code (should be Uninitialized).
 func waitForVaultToBoot(t *testing.T, cluster VaultCluster) {
 	logger.Logf(t, "Waiting for Vault to boot the first time on host %s. Expecting it to be in uninitialized status (%d).", cluster.main.Address(), int(Uninitialized))
 	assertStatus(t, cluster.main, Uninitialized)
@@ -179,8 +176,7 @@ func assertStatus(t *testing.T, node *api.Client, expectedStatus VaultStatus) {
 	logger.Logf(t, out)
 }
 
-// Check the status of the given Vault node and ensure it matches the expected status. Note that we use curl to do the
-// status check so we can ensure that TLS certificates work for curl (and not just the Vault client).
+// Check the status of the given Vault node and ensure it matches the expected status.
 func checkStatus(t *testing.T, node *api.Client, expectedStatus VaultStatus) (string, error) {
   health, err := node.Sys().Health()
 
