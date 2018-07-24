@@ -26,12 +26,14 @@ Two route53 records are provided to access the individual instances.
 | dynamodb_max_write_capacity | The max write capacity of the Vault dynamodb table | string | `100` | no |
 | dynamodb_min_read_capacity | The min read capacity of the Vault dynamodb table | string | `5` | no |
 | dynamodb_min_write_capacity | The min write capacity of the Vault dynamodb table | string | `5` | no |
+| dynamodb_table_name_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `` | no |
 | enable_dynamodb_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `true` | no |
 | environment | Name of the environment where to deploy Vault (just for naming reasons) | string | - | yes |
 | instance_type | The instance type to use for the vault servers | string | `t2.micro` | no |
 | key_name | Name of the sshkey to deploy on the vault instances | string | - | yes |
 | lb_internal | Should the ALB be created as an internal Loadbalancer | string | `false` | no |
 | lb_subnets | The subnets to use for the alb | list | - | yes |
+| le_staging | Whether to use the LetsEncrypt staging server or not. Recommended when running tests | string | `false` | no |
 | project | Name of the project | string | - | yes |
 | teleport_auth_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `` | no |
 | teleport_node_sg | The security-group ID of the teleport server | string | `` | no |
