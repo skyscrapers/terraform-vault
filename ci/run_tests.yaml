@@ -20,7 +20,7 @@ run:
   args:
     - -exc
     - |
-      apk add --update unzip curl
+      apk add --update unzip curl dep
 
       # Install terraform
       curl -s -o "terraform.zip" "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip"
