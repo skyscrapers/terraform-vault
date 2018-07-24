@@ -28,6 +28,6 @@ run:
       unzip terraform.zip
       export PATH=$PATH:$PWD
 
-      cd terraform-src/test
+      cd gopath/src/github.com/skyscrapers/terraform-vault/test
       dep ensure
       go test -v -timeout 60m
