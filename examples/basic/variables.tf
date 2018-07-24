@@ -34,3 +34,5 @@ variable "le_staging" {
 variable "key_name" {
   default = ""
 }
+
+variable "le_email" {}

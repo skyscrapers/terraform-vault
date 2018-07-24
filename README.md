@@ -33,6 +33,7 @@ Two route53 records are provided to access the individual instances.
 | key_name | Name of the sshkey to deploy on the vault instances | string | - | yes |
 | lb_internal | Should the ALB be created as an internal Loadbalancer | string | `false` | no |
 | lb_subnets | The subnets to use for the alb | list | - | yes |
+| le_email | The email address that's going to be used to register to LetsEncrypt | string | - | yes |
 | le_staging | Whether to use the LetsEncrypt staging server or not. Recommended when running tests | string | `false` | no |
 | project | Name of the project | string | - | yes |
 | teleport_auth_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `` | no |

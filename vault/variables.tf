@@ -119,3 +119,7 @@ variable "le_staging" {
   description = "Whether to use the LetsEncrypt staging server or not. Recommended when running tests"
   default     = false
 }
+
+variable "le_email" {
+  description = "The email address that's going to be used to register to LetsEncrypt"
+}

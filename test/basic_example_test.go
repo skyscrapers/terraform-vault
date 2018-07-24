@@ -55,6 +55,7 @@ func TestBasicExample(t *testing.T) {
 			Vars: map[string]interface{}{
 				"vault_acm_arn": os.Getenv("TEST_ACM_ARN"),
 				"vault_dns_root": os.Getenv("TEST_R53_ZONE_NAME"),
+				"le_email": os.Getenv("TEST_LE_EMAIL"),
 				"vault_version": "0.9.3",
 				"project": projectName,
 				"le_staging": true,

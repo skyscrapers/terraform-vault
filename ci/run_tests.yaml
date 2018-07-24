@@ -10,6 +10,7 @@ params:
   AWS_DEFAULT_REGION: 'eu-west-1'
   TEST_R53_ZONE_NAME: ''
   TEST_ACM_ARN: ''
+  TEST_LE_EMAIL: 'something@example.com'
   TF_VERSION: '0.11.7'
 
 inputs:

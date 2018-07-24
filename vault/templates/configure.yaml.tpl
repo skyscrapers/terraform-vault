@@ -18,7 +18,7 @@ apt:
 
 runcmd:
   - [ pip, install, certbot-dns-route53 ]
-  - [ certbot, certonly, -n, --agree-tos, ${le_staging}, --email, letsencrypt@skyscrapers.eu, --dns-route53, -d, ${vault_dns} ]
+  - [ certbot, certonly, -n, --agree-tos, ${le_staging}, --email, ${le_email}, --dns-route53, -d, ${vault_dns} ]
   - [ chgrp, -R, vault, /etc/letsencrypt ]
   - [ chmod, -R, g=rX, /etc/letsencrypt ]
   - [ systemctl, enable, vault.service ]
