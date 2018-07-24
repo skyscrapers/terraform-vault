@@ -4,6 +4,7 @@ import (
 	"testing"
 	"fmt"
 	"time"
+	"os"
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/test-structure"
@@ -12,9 +13,6 @@ import (
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/hashicorp/vault/api"
 )
-
-const VAULT_ROOT_ZONE = "test.skyscrape.rs"
-const VAULT_HOSTNAME = "vault.test.skyscrape.rs"
 
 // From: https://www.vaultproject.io/api/system/health.html
 type VaultStatus int
@@ -55,8 +53,8 @@ func TestBasicExample(t *testing.T) {
 
 			// Variables to pass to our Terraform code using -var options
 			Vars: map[string]interface{}{
-				"vault_acm_arn": "arn:aws:acm:eu-west-1:847239549153:certificate/3e1518ab-342b-44a2-86ba-a882d9da1fa5",
-				"vault_dns_root": VAULT_ROOT_ZONE,
+				"vault_acm_arn": os.Getenv("TEST_ACM_ARN"),
+				"vault_dns_root": os.Getenv("TEST_R53_ZONE_NAME"),
 				"vault_version": "0.9.3",
 				"project": projectName,
 				"le_staging": true,
@@ -102,7 +100,7 @@ func initializeAndUnsealVaultCluster(t *testing.T) {
 // Find the nodes in the given Vault ASG and return them in a VaultCluster struct
 func findVaultClusterNodes(t *testing.T) VaultCluster {
 	main, err := api.NewClient(&api.Config{
-		Address: fmt.Sprintf("https://vault.%s", VAULT_ROOT_ZONE),
+		Address: fmt.Sprintf("https://vault.%s", os.Getenv("TEST_R53_ZONE_NAME")),
 	})
 
 	if err != nil {
@@ -110,7 +108,7 @@ func findVaultClusterNodes(t *testing.T) VaultCluster {
 	}
 
 	vault1, err := api.NewClient(&api.Config{
-		Address: fmt.Sprintf("https://vault1.%s", VAULT_ROOT_ZONE),
+		Address: fmt.Sprintf("https://vault1.%s", os.Getenv("TEST_R53_ZONE_NAME")),
 	})
 
 	if err != nil {
@@ -118,7 +116,7 @@ func findVaultClusterNodes(t *testing.T) VaultCluster {
 	}
 
 	vault2, err := api.NewClient(&api.Config{
-		Address: fmt.Sprintf("https://vault2.%s", VAULT_ROOT_ZONE),
+		Address: fmt.Sprintf("https://vault2.%s", os.Getenv("TEST_R53_ZONE_NAME")),
 	})
 
 	if err != nil {
