@@ -82,3 +82,8 @@ output "alb_arn" {
   description = "The alb ARN"
   value       = "${module.alb.arn}"
 }
+
+output "dynamodb_table_name" {
+  description = "The Vault dynamodb table name"
+  value       = "${aws_dynamodb_table.vault_dynamodb_table.name}"
+}

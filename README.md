@@ -22,11 +22,19 @@ Two route53 records are provided to access the individual instances.
 | dns_root | The root domain to configure for vault | string | `production.skyscrape.rs` | no |
 | download_url_teleport | The download url for Teleport | string | `https://github.com/gravitational/teleport/releases/download/v2.3.5/teleport-v2.3.5-linux-amd64-bin.tar.gz` | no |
 | download_url_vault | The download url for vault | string | `https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip` | no |
+| dynamodb_max_read_capacity | The max read capacity of the Vault dynamodb table | string | `100` | no |
+| dynamodb_max_write_capacity | The max write capacity of the Vault dynamodb table | string | `100` | no |
+| dynamodb_min_read_capacity | The min read capacity of the Vault dynamodb table | string | `5` | no |
+| dynamodb_min_write_capacity | The min write capacity of the Vault dynamodb table | string | `5` | no |
+| dynamodb_table_name_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `` | no |
+| enable_dynamodb_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `true` | no |
 | environment | Name of the environment where to deploy Vault (just for naming reasons) | string | - | yes |
 | instance_type | The instance type to use for the vault servers | string | `t2.micro` | no |
 | key_name | Name of the sshkey to deploy on the vault instances | string | - | yes |
 | lb_internal | Should the ALB be created as an internal Loadbalancer | string | `false` | no |
 | lb_subnets | The subnets to use for the alb | list | - | yes |
+| le_email | The email address that's going to be used to register to LetsEncrypt | string | - | yes |
+| le_staging | Whether to use the LetsEncrypt staging server or not. Recommended when running tests | string | `false` | no |
 | project | Name of the project | string | - | yes |
 | teleport_auth_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `` | no |
 | teleport_node_sg | The security-group ID of the teleport server | string | `` | no |
@@ -47,6 +55,7 @@ Two route53 records are provided to access the individual instances.
 | alb_sg_id | The alb security group ID |
 | alb_vault1_target_group | The vault1 target group ARN |
 | alb_vault2_target_group | The vault2 target group ARN |
+| dynamodb_table_name | The Vault dynamodb table name |
 | iam_policy | The iam policy ARN used for vault |
 | sg_id | The vault security-group id |
 | vault1_instance_id | The vault1 instance ID |
@@ -80,3 +89,7 @@ module "ha_vault" {
   key_name             = "sam"
 }
 ```
+
+### Upgrade from v1.x to v2.x
+
+Starting from v2.0.0 of this module, the name of Vault's DynamoDB table will be dynamically generated from the values of `"${var.project}"` and `"${var.environment}"`. In previous versions it was hardcoded to `vault-dynamodb-backend`, so to avoid breaking current deployments, we've introduced a new variable `dynamodb_table_name_override` to force a specific name for the DynamoDB table. So if you're upgrading from a previous version of the module, you'll probably want to set `dynamodb_table_name_override=vault-dynamodb-backend` so Terraform doesn't recreate the table.

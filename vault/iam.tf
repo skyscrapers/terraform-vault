@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "vault" {
     ]
 
     resources = [
-      "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/vault-dynamodb-backend",
+      "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${aws_dynamodb_table.vault_dynamodb_table.name}",
     ]
   }
 
