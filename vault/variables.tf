@@ -123,3 +123,8 @@ variable "le_staging" {
 variable "le_email" {
   description = "The email address that's going to be used to register to LetsEncrypt"
 }
+
+variable "enable_point_in_time_recovery" {
+  description = "Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that additional charges will apply by enabling this setting (https://aws.amazon.com/dynamodb/pricing/)"
+  default     = true
+}

@@ -28,6 +28,7 @@ Two route53 records are provided to access the individual instances.
 | dynamodb_min_write_capacity | The min write capacity of the Vault dynamodb table | string | `5` | no |
 | dynamodb_table_name_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `` | no |
 | enable_dynamodb_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `true` | no |
+| enable_point_in_time_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that additional charges will apply by enabling this setting (https://aws.amazon.com/dynamodb/pricing/) | string | `true` | no |
 | environment | Name of the environment where to deploy Vault (just for naming reasons) | string | - | yes |
 | instance_type | The instance type to use for the vault servers | string | `t2.micro` | no |
 | key_name | Name of the sshkey to deploy on the vault instances | string | - | yes |
