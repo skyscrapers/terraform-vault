@@ -15,7 +15,7 @@ Two route53 records are provided to access the individual instances.
 
 ### Terraform providers
 
-Because this module can be configured to setup a DynamoDB table in a separate region from the main table, it expects two Terraform providers: `aws` and `aws.replica`. If you want to enable the replica table, you'll need to create a second `aws` provider targeting the region you want to put the replica table on, and then pass it on to the module as `aws.replica`:
+Because this module can be configured to setup a DynamoDB table in a separate region from the main table, it expects two Terraform providers: `aws` and `aws.replica`. If you want to enable the replica table, you'll need to create a second `aws` provider targeting the region you want to put the replica table in, and then pass it on to the module as `aws.replica`:
 
 ```
 provider "aws" {
@@ -106,6 +106,8 @@ module "vault" {
 | alb_vault2_target_group | The vault2 target group ARN |
 | dynamodb_table_name | The Vault dynamodb table name |
 | iam_policy | The iam policy ARN used for vault |
+| main_dynamodb_table_region | Region where the main DynamoDB table will be created |
+| replica_dynamodb_table_region | Region where the replica DynamoDB table will be created, if enabled |
 | sg_id | The vault security-group id |
 | vault1_instance_id | The vault1 instance ID |
 | vault1_role_id | The vault1 instance-role ID |
