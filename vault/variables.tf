@@ -140,5 +140,6 @@ variable "enable_point_in_time_recovery" {
 }
 
 variable "enable_dynamodb_replica_table" {
-  default = false
+  description = "Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider"
+  default     = false
 }

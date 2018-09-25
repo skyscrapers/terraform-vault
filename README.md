@@ -13,6 +13,51 @@ Two route53 records are provided to access the individual instances.
 
 ![](vault/images/vault-component.svg)
 
+### Terraform providers
+
+Because this module can be configured to setup a DynamoDB table in a separate region from the main table, it expects two Terraform providers: `aws` and `aws.replica`. If you want to enable the replica table, you'll need to create a second `aws` provider targeting the region you want to put the replica table on, and then pass it on to the module as `aws.replica`:
+
+```
+provider "aws" {
+  region = "eu-west-1"
+}
+
+provider "aws" {
+  alias  = "replica"
+  region = "eu-west-2"
+}
+
+module "vault" {
+  ...
+
+  enable_dynamodb_replica_table = true
+
+  providers = {
+    aws = aws
+    aws.replica = aws.replica
+  }
+}
+```
+
+If you don't want to enable the replica table, you still need to set the `providers` block in the vault module, but you can set the default `aws` provider in both "slots", like so:
+
+```
+provider "aws" {
+  region = "eu-west-1"
+}
+
+module "vault" {
+  ...
+
+  enable_dynamodb_replica_table = false
+
+  providers = {
+    aws = aws
+    aws.replica = aws
+  }
+}
+```
+
 ### Available variables
 
 | Name | Description | Type | Default | Required |
@@ -28,6 +73,7 @@ Two route53 records are provided to access the individual instances.
 | dynamodb_min_write_capacity | The min write capacity of the Vault dynamodb table | string | `5` | no |
 | dynamodb_table_name_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `` | no |
 | enable_dynamodb_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `true` | no |
+| enable_dynamodb_replica_table | Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider | string | `false` | no |
 | enable_point_in_time_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that additional charges will apply by enabling this setting (https://aws.amazon.com/dynamodb/pricing/) | string | `true` | no |
 | environment | Name of the environment where to deploy Vault (just for naming reasons) | string | - | yes |
 | instance_type | The instance type to use for the vault servers | string | `t2.micro` | no |
@@ -37,6 +83,8 @@ Two route53 records are provided to access the individual instances.
 | le_email | The email address that's going to be used to register to LetsEncrypt | string | - | yes |
 | le_staging | Whether to use the LetsEncrypt staging server or not. Recommended when running tests | string | `false` | no |
 | project | Name of the project | string | - | yes |
+| replica_dynamodb_max_read_capacity | The max read capacity of the Vault dynamodb replica table | string | `5` | no |
+| replica_dynamodb_min_read_capacity | The min read capacity of the Vault dynamodb replica table | string | `5` | no |
 | teleport_auth_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `` | no |
 | teleport_node_sg | The security-group ID of the teleport server | string | `` | no |
 | teleport_token_1 | The Teleport token for the first instance. This can be a dynamic short-lived token | string | `` | no |
@@ -69,28 +117,26 @@ Two route53 records are provided to access the individual instances.
 | vault2_route53_record | The vault2 route53 record id |
 | vault_route53_record | The main vault route53 record id |
 
-### Example
+### Upgrades
 
-```terraform
-module "ha_vault" {
-  source               = "github.com/skyscrapers/terraform-vault//vault?ref=1.0.0"
-  teleport_auth_server = "10.10.0.100:3025"
-  ami                  = "ami-add175d4"
-  project              = "whatever"
-  vault1_subnet        = "${data.terraform_remote_state.static.private_app_subnets[0]}"
-  vault2_subnet        = "${data.terraform_remote_state.static.private_app_subnets[1]}"
-  teleport_node_sg     = "${data.terraform_remote_state.static.teleport_node_sg_id}"
-  vpc_id               = "${data.terraform_remote_state.static.vpc_id}"
-  lb_subnets           = "${data.terraform_remote_state.static.public_lb_subnets}"
-  acm_arn              = "${data.aws_acm_certificate.vault.arn}"
-  teleport_token_1     = "c010f4fa754b7ad2a7a1d580e282d81b"
-  teleport_token_2     = "6b69a780b9137g467f79ab7263337fd6"
-  dns_root             = "${var.dns_root}"
-  vault_nproc          = "2"
-  key_name             = "sam"
-}
+#### From v2.x to v3.x
+
+In v3.x of this module, the DynamoDB table creation has been moved inside a nested Terraform module. To avoid having to re-create such table, you'll need to move/rename it inside the state. The following Terraform commands should suffice:
+
+```
+terraform state mv module.ha_vault.aws_appautoscaling_policy.dynamodb_table_read_policy module.ha_vault.module.main_dynamodb_table.aws_appautoscaling_policy.dynamodb_table_read_policy
+terraform state mv module.ha_vault.aws_appautoscaling_policy.dynamodb_table_write_policy module.ha_vault.module.main_dynamodb_table.aws_appautoscaling_policy.dynamodb_table_write_policy
+terraform state mv module.ha_vault.aws_appautoscaling_target.dynamodb_table_read_target module.ha_vault.module.main_dynamodb_table.aws_appautoscaling_target.dynamodb_table_read_target
+terraform state mv module.ha_vault.aws_appautoscaling_target.dynamodb_table_write_target module.ha_vault.module.main_dynamodb_table.aws_appautoscaling_target.dynamodb_table_write_target
+terraform state mv module.ha_vault.aws_dynamodb_table.vault_dynamodb_table module.ha_vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
 ```
 
-### Upgrade from v1.x to v2.x
+Additionally, if you want to enable DynamoDB global tables on an existing Vault setup, you'll first need to export all the current data, empty the table, enable the global tables feature and finally import your data back in the main table. You could do this with the [DynamoDB import/export tool](https://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-importexport-ddb.html). The reason for this is that enabling the global tables feature in DynamoDB requires all the tables involved to be empty.
+
+#### From v1.x to v2.x
 
 Starting from v2.0.0 of this module, the name of Vault's DynamoDB table will be dynamically generated from the values of `"${var.project}"` and `"${var.environment}"`. In previous versions it was hardcoded to `vault-dynamodb-backend`, so to avoid breaking current deployments, we've introduced a new variable `dynamodb_table_name_override` to force a specific name for the DynamoDB table. So if you're upgrading from a previous version of the module, you'll probably want to set `dynamodb_table_name_override=vault-dynamodb-backend` so Terraform doesn't recreate the table.
+
+## Examples
+
+Check out the [examples](examples/) folder.
