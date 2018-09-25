@@ -1,3 +1,7 @@
+locals {
+  dynamodb_table_name = "${var.enable_dynamodb_replica_table ? join("", aws_dynamodb_global_table.vault_global_table.*.id) : module.main_dynamodb_table.table_name}"
+}
+
 data "template_cloudinit_config" "vault1" {
   gzip          = true
   base64_encode = true
@@ -47,7 +51,7 @@ data "template_file" "cloudconfig_vault1" {
     vault_cluster_dns   = "vault.${var.dns_root}"
     teleport_config     = "${var.teleport_auth_server == "" ? "" : module.teleport_vault1.teleport_config_cloudinit}"
     teleport_service    = "${var.teleport_auth_server == "" ? "" : module.teleport_vault1.teleport_service_cloudinit}"
-    dynamodb_table_name = "${aws_dynamodb_table.vault_dynamodb_table.name}"
+    dynamodb_table_name = "${local.dynamodb_table_name}"
     le_staging          = "${var.le_staging ? "--staging" : ""}"
     le_email            = "${var.le_email}"
   }
@@ -62,7 +66,7 @@ data "template_file" "cloudconfig_vault2" {
     vault_cluster_dns   = "vault.${var.dns_root}"
     teleport_config     = "${var.teleport_auth_server == "" ? "" : module.teleport_vault2.teleport_config_cloudinit}"
     teleport_service    = "${var.teleport_auth_server == "" ? "" : module.teleport_vault2.teleport_service_cloudinit}"
-    dynamodb_table_name = "${aws_dynamodb_table.vault_dynamodb_table.name}"
+    dynamodb_table_name = "${local.dynamodb_table_name}"
     le_staging          = "${var.le_staging ? "--staging" : ""}"
     le_email            = "${var.le_email}"
   }

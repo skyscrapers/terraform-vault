@@ -52,6 +52,7 @@ dep ensure
 cd test
 export TEST_R53_ZONE_NAME="test.example.com"
 export TEST_ACM_ARN="arn:aws:acm:eu-west-1:1234567890:certificate/uev7722-434t-55g7-86ba-a882d9da1fa5"
+export TEST_LE_EMAIL="something@example.com"
 go test -v -timeout 60m
 ```
 
@@ -63,5 +64,6 @@ To run a specific test called `TestFoo`:
 cd test
 export TEST_R53_ZONE_NAME="test.example.com"
 export TEST_ACM_ARN="arn:aws:acm:eu-west-1:1234567890:certificate/uev7722-434t-55g7-86ba-a882d9da1fa5"
+export TEST_LE_EMAIL="something@example.com"
 go test -v -timeout 60m -run TestFoo
 ```
