@@ -25,6 +25,10 @@ resource "aws_dynamodb_table" "vault_dynamodb_table" {
     Project     = "${var.project}"
   }
 
+  point_in_time_recovery {
+    enabled = "${var.enable_point_in_time_recovery}"
+  }
+
   lifecycle {
     ignore_changes = ["read_capacity", "write_capacity"]
   }
