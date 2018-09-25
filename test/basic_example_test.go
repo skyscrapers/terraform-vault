@@ -33,8 +33,6 @@ type VaultCluster struct {
 
 // An example of how to test the simple Terraform module in examples/basic using Terratest.
 func TestBasicExample(t *testing.T) {
-	t.Parallel()
-
 	// The path to where our Terraform code is located
 	exampleFolder := "../examples/basic"
 
@@ -80,8 +78,6 @@ func TestBasicExample(t *testing.T) {
 }
 
 func TestGlobalTableExample(t *testing.T) {
-	t.Parallel()
-
 	// The path to where our Terraform code is located
 	exampleFolder := "../examples/global-table"
 
