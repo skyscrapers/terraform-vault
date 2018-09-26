@@ -1,89 +1,53 @@
-locals {
-  dynamodb_table_name = "${var.dynamodb_table_name_override == "" ? format("vault-%s-%s", var.environment, var.project) : var.dynamodb_table_name_override}"
+module "main_dynamodb_table" {
+  source                        = "../dynamodb-table"
+  enable                        = true
+  dynamodb_table_name_override  = "${var.dynamodb_table_name_override}"
+  environment                   = "${var.environment}"
+  project                       = "${var.project}"
+  enable_point_in_time_recovery = "${var.enable_point_in_time_recovery}"
+  dynamodb_max_read_capacity    = "${var.dynamodb_max_read_capacity}"
+  dynamodb_min_read_capacity    = "${var.dynamodb_min_read_capacity}"
+  dynamodb_max_write_capacity   = "${var.dynamodb_max_write_capacity}"
+  dynamodb_min_write_capacity   = "${var.dynamodb_min_write_capacity}"
+  enable_dynamodb_autoscaling   = "${var.enable_dynamodb_autoscaling}"
 }
 
-resource "aws_dynamodb_table" "vault_dynamodb_table" {
-  name           = "${local.dynamodb_table_name}"
-  read_capacity  = 5
-  write_capacity = 5
-  hash_key       = "Path"
-  range_key      = "Key"
+module "replica_dynamodb_table" {
+  source                        = "../dynamodb-table"
+  enable                        = "${var.enable_dynamodb_replica_table}"
+  dynamodb_table_name_override  = "${var.dynamodb_table_name_override}"
+  environment                   = "${var.environment}"
+  project                       = "${var.project}"
+  enable_point_in_time_recovery = "${var.enable_point_in_time_recovery}"
+  dynamodb_max_read_capacity    = "${var.replica_dynamodb_max_read_capacity}"
+  dynamodb_min_read_capacity    = "${var.replica_dynamodb_min_read_capacity}"
+  dynamodb_max_write_capacity   = "${var.dynamodb_max_write_capacity}"
+  dynamodb_min_write_capacity   = "${var.dynamodb_min_write_capacity}"
+  enable_dynamodb_autoscaling   = "${var.enable_dynamodb_autoscaling}"
 
-  attribute {
-    name = "Key"
-    type = "S"
-  }
-
-  attribute {
-    name = "Path"
-    type = "S"
-  }
-
-  tags {
-    Name        = "${local.dynamodb_table_name}"
-    Environment = "${var.environment}"
-    Project     = "${var.project}"
-  }
-
-  point_in_time_recovery {
-    enabled = "${var.enable_point_in_time_recovery}"
-  }
-
-  lifecycle {
-    ignore_changes = ["read_capacity", "write_capacity"]
+  providers = {
+    aws = "aws.replica"
   }
 }
 
-# Autoscaling
+resource "aws_dynamodb_global_table" "vault_global_table" {
+  count = "${var.enable_dynamodb_replica_table ? 1 : 0}"
 
-resource "aws_appautoscaling_target" "dynamodb_table_read_target" {
-  count              = "${var.enable_dynamodb_autoscaling ? 1 : 0}"
-  max_capacity       = "${var.dynamodb_max_read_capacity}"
-  min_capacity       = "${var.dynamodb_min_read_capacity}"
-  resource_id        = "table/${aws_dynamodb_table.vault_dynamodb_table.name}"
-  scalable_dimension = "dynamodb:table:ReadCapacityUnits"
-  service_namespace  = "dynamodb"
-}
+  # A DynamoDB global table requires that the autoscaling on all replica tables are enabled
+  # This will force such dependency as "depends_on" can't be used on modules
+  name  = "${index(list(
+    "needle",
+    module.main_dynamodb_table.write_autoscaling_policy_arn,
+    module.replica_dynamodb_table.write_autoscaling_policy_arn,
+    module.main_dynamodb_table.read_autoscaling_policy_arn,
+    module.replica_dynamodb_table.read_autoscaling_policy_arn
+  ), "needle") == 0 ? module.main_dynamodb_table.table_name : ""}"
 
-resource "aws_appautoscaling_target" "dynamodb_table_write_target" {
-  count              = "${var.enable_dynamodb_autoscaling ? 1 : 0}"
-  max_capacity       = "${var.dynamodb_max_write_capacity}"
-  min_capacity       = "${var.dynamodb_min_write_capacity}"
-  resource_id        = "table/${aws_dynamodb_table.vault_dynamodb_table.name}"
-  scalable_dimension = "dynamodb:table:WriteCapacityUnits"
-  service_namespace  = "dynamodb"
-}
-
-resource "aws_appautoscaling_policy" "dynamodb_table_read_policy" {
-  count              = "${var.enable_dynamodb_autoscaling ? 1 : 0}"
-  name               = "DynamoDBReadCapacityUtilization:${aws_appautoscaling_target.dynamodb_table_read_target.resource_id}"
-  policy_type        = "TargetTrackingScaling"
-  resource_id        = "${aws_appautoscaling_target.dynamodb_table_read_target.resource_id}"
-  scalable_dimension = "${aws_appautoscaling_target.dynamodb_table_read_target.scalable_dimension}"
-  service_namespace  = "${aws_appautoscaling_target.dynamodb_table_read_target.service_namespace}"
-
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "DynamoDBReadCapacityUtilization"
-    }
-
-    target_value = 70
+  replica {
+    region_name = "${data.aws_region.main.name}"
   }
-}
 
-resource "aws_appautoscaling_policy" "dynamodb_table_write_policy" {
-  count              = "${var.enable_dynamodb_autoscaling ? 1 : 0}"
-  name               = "DynamoDBWriteCapacityUtilization:${aws_appautoscaling_target.dynamodb_table_write_target.resource_id}"
-  policy_type        = "TargetTrackingScaling"
-  resource_id        = "${aws_appautoscaling_target.dynamodb_table_write_target.resource_id}"
-  scalable_dimension = "${aws_appautoscaling_target.dynamodb_table_write_target.scalable_dimension}"
-  service_namespace  = "${aws_appautoscaling_target.dynamodb_table_write_target.service_namespace}"
-
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "DynamoDBWriteCapacityUtilization"
-    }
-
-    target_value = 70
+  replica {
+    region_name = "${data.aws_region.replica.name}"
   }
 }

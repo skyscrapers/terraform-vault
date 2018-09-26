@@ -1,9 +1,3 @@
-data "aws_caller_identity" "current" {}
-
-data "aws_region" "current" {
-  current = true
-}
-
 data "aws_iam_policy_document" "vault" {
   statement {
     sid = "getR53"
@@ -44,7 +38,7 @@ data "aws_iam_policy_document" "vault" {
     ]
 
     resources = [
-      "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/${aws_dynamodb_table.vault_dynamodb_table.name}",
+      "arn:aws:dynamodb:${data.aws_region.main.name}:${data.aws_caller_identity.current.account_id}:table/${local.dynamodb_table_name}",
     ]
   }
 
@@ -62,7 +56,7 @@ data "aws_iam_policy_document" "vault" {
     ]
 
     resources = [
-      "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/*",
+      "arn:aws:dynamodb:${data.aws_region.main.name}:${data.aws_caller_identity.current.account_id}:table/*",
     ]
   }
 

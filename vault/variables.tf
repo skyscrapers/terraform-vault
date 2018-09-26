@@ -100,6 +100,16 @@ variable "dynamodb_min_read_capacity" {
   default     = "5"
 }
 
+variable "replica_dynamodb_max_read_capacity" {
+  description = "The max read capacity of the Vault dynamodb replica table"
+  default     = "5"
+}
+
+variable "replica_dynamodb_min_read_capacity" {
+  description = "The min read capacity of the Vault dynamodb replica table"
+  default     = "5"
+}
+
 variable "dynamodb_max_write_capacity" {
   description = "The max write capacity of the Vault dynamodb table"
   default     = "100"
@@ -127,4 +137,9 @@ variable "le_email" {
 variable "enable_point_in_time_recovery" {
   description = "Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that additional charges will apply by enabling this setting (https://aws.amazon.com/dynamodb/pricing/)"
   default     = true
+}
+
+variable "enable_dynamodb_replica_table" {
+  description = "Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider"
+  default     = false
 }

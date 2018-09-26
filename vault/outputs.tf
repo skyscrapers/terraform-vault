@@ -85,5 +85,15 @@ output "alb_arn" {
 
 output "dynamodb_table_name" {
   description = "The Vault dynamodb table name"
-  value       = "${aws_dynamodb_table.vault_dynamodb_table.name}"
+  value       = "${local.dynamodb_table_name}"
+}
+
+output "main_dynamodb_table_region" {
+  description = "Region where the main DynamoDB table will be created"
+  value       = "${data.aws_region.main.name}"
+}
+
+output "replica_dynamodb_table_region" {
+  description = "Region where the replica DynamoDB table will be created, if enabled"
+  value       = "${data.aws_region.replica.name}"
 }

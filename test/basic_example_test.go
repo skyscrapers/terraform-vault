@@ -33,8 +33,6 @@ type VaultCluster struct {
 
 // An example of how to test the simple Terraform module in examples/basic using Terratest.
 func TestBasicExample(t *testing.T) {
-	t.Parallel()
-
 	// The path to where our Terraform code is located
 	exampleFolder := "../examples/basic"
 
@@ -56,10 +54,57 @@ func TestBasicExample(t *testing.T) {
 				"vault_acm_arn": os.Getenv("TEST_ACM_ARN"),
 				"vault_dns_root": os.Getenv("TEST_R53_ZONE_NAME"),
 				"le_email": os.Getenv("TEST_LE_EMAIL"),
+				"key_name": os.Getenv("TEST_KEY_NAME"),
 				"vault_version": "0.9.3",
 				"project": projectName,
 				"le_staging": true,
 				"lb_internal": false,
+			},
+
+			EnvVars: map[string]string{
+				"AWS_DEFAULT_REGION": "eu-west-1",
+			},
+		}
+
+		test_structure.SaveTerraformOptions(t, exampleFolder, terraformOptions)
+
+		// This will run `terraform init` and `terraform apply` and fail the test if there are any errors
+		terraform.InitAndApply(t, terraformOptions)
+	})
+
+	test_structure.RunTestStage(t, "validate", func() {
+		initializeAndUnsealVaultCluster(t)
+	})
+}
+
+func TestGlobalTableExample(t *testing.T) {
+	// The path to where our Terraform code is located
+	exampleFolder := "../examples/global-table"
+
+	defer test_structure.RunTestStage(t, "teardown", func() {
+		terraformOptions := test_structure.LoadTerraformOptions(t, exampleFolder)
+		// At the end of the test, run `terraform destroy` to clean up any resources that were created
+		terraform.Destroy(t, terraformOptions)
+	})
+
+	test_structure.RunTestStage(t, "deploy", func() {
+		uniqueId := random.UniqueId()
+		projectName := fmt.Sprintf("vault-%s", uniqueId)
+
+		terraformOptions := &terraform.Options{
+			TerraformDir: exampleFolder,
+
+			// Variables to pass to our Terraform code using -var options
+			Vars: map[string]interface{}{
+				"vault_acm_arn": os.Getenv("TEST_ACM_ARN"),
+				"vault_dns_root": os.Getenv("TEST_R53_ZONE_NAME"),
+				"le_email": os.Getenv("TEST_LE_EMAIL"),
+				"key_name": os.Getenv("TEST_KEY_NAME"),
+				"vault_version": "0.9.3",
+				"project": projectName,
+				"le_staging": true,
+				"lb_internal": false,
+				"dynamodb_replica_region": "eu-west-2",
 			},
 
 			EnvVars: map[string]string{
