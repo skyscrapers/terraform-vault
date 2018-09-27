@@ -63,6 +63,7 @@ module "vault" {
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | acm_arn | The ACM ARN to use on the alb | string | - | yes |
+| acme_server | ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server. | string | `https://acme-v01.api.letsencrypt.org/directory` | no |
 | ami | The AMI ID to use for the vault instances | string | - | yes |
 | dns_root | The root domain to configure for vault | string | `production.skyscrape.rs` | no |
 | download_url_teleport | The download url for Teleport | string | `https://github.com/gravitational/teleport/releases/download/v2.3.5/teleport-v2.3.5-linux-amd64-bin.tar.gz` | no |
@@ -81,7 +82,6 @@ module "vault" {
 | lb_internal | Should the ALB be created as an internal Loadbalancer | string | `false` | no |
 | lb_subnets | The subnets to use for the alb | list | - | yes |
 | le_email | The email address that's going to be used to register to LetsEncrypt | string | - | yes |
-| le_staging | Whether to use the LetsEncrypt staging server or not. Recommended when running tests | string | `false` | no |
 | project | Name of the project | string | - | yes |
 | replica_dynamodb_max_read_capacity | The max read capacity of the Vault dynamodb replica table | string | `5` | no |
 | replica_dynamodb_min_read_capacity | The min read capacity of the Vault dynamodb replica table | string | `5` | no |

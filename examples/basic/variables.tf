@@ -27,8 +27,8 @@ variable "custom_ami" {
 variable "project" {
 }
 
-variable "le_staging" {
-  default = false
+variable "acme_server" {
+  default = "https://acme-v01.api.letsencrypt.org/directory"
 }
 
 variable "key_name" {

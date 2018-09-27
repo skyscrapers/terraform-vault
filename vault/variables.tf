@@ -125,9 +125,9 @@ variable "dynamodb_table_name_override" {
   default     = ""
 }
 
-variable "le_staging" {
-  description = "Whether to use the LetsEncrypt staging server or not. Recommended when running tests"
-  default     = false
+variable "acme_server" {
+  description = "ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server."
+  default     = "https://acme-v01.api.letsencrypt.org/directory"
 }
 
 variable "le_email" {

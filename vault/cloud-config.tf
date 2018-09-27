@@ -52,7 +52,7 @@ data "template_file" "cloudconfig_vault1" {
     teleport_config     = "${var.teleport_auth_server == "" ? "" : module.teleport_vault1.teleport_config_cloudinit}"
     teleport_service    = "${var.teleport_auth_server == "" ? "" : module.teleport_vault1.teleport_service_cloudinit}"
     dynamodb_table_name = "${local.dynamodb_table_name}"
-    le_staging          = "${var.le_staging ? "--staging" : ""}"
+    acme_server         = "${var.acme_server}"
     le_email            = "${var.le_email}"
   }
 }
@@ -67,7 +67,7 @@ data "template_file" "cloudconfig_vault2" {
     teleport_config     = "${var.teleport_auth_server == "" ? "" : module.teleport_vault2.teleport_config_cloudinit}"
     teleport_service    = "${var.teleport_auth_server == "" ? "" : module.teleport_vault2.teleport_service_cloudinit}"
     dynamodb_table_name = "${local.dynamodb_table_name}"
-    le_staging          = "${var.le_staging ? "--staging" : ""}"
+    acme_server         = "${var.acme_server}"
     le_email            = "${var.le_email}"
   }
 }

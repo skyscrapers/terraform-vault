@@ -18,7 +18,7 @@ apt:
 
 runcmd:
   - [ pip, install, certbot-dns-route53 ]
-  - [ certbot, certonly, -n, --agree-tos, ${le_staging}, --email, ${le_email}, --dns-route53, -d, ${vault_dns} ]
+  - [ certbot, certonly, --server, "${acme_server}", -n, --agree-tos, --email, ${le_email}, --dns-route53, -d, ${vault_dns} ]
   - [ chgrp, -R, vault, /etc/letsencrypt ]
   - [ chmod, -R, g=rX, /etc/letsencrypt ]
   - [ systemctl, enable, vault.service ]
@@ -55,26 +55,6 @@ ${teleport_service}
     WantedBy=multi-user.target
 
   path: /etc/systemd/system/vault.service
-- content: |
-    [Unit]
-    Description=Let's Encrypt renewal
-
-    [Service]
-    Type=oneshot
-    ExecStart=/usr/bin/certbot renew --quiet --agree-tos ${le_staging} --deploy-hook "chgrp -R vault /etc/letsencrypt && chmod -R g=rX /etc/letsencrypt && systemctl reload vault.service"
-  path: /etc/systemd/system/certbot.service
-- content: |
-    [Unit]
-    Description=Twice daily renewal of Let's Encrypt's certificates
-
-    [Timer]
-    OnCalendar=0/12:00:00
-    RandomizedDelaySec=1h
-    Persistent=true
-
-    [Install]
-    WantedBy=timers.target
-  path: /etc/systemd/system/certbot.timer
 - content: |
     storage "dynamodb" {
       ha_enabled = "true"
