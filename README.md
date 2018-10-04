@@ -157,22 +157,22 @@ Follow this process only if you don't have cross-region replication enabled. If 
 1. Restore your data to a new DynamoDB table.
 1. Set `dynamodb_table_name_override` variable to the name of your new DynamoDB table
 1. Remove the old DynamoDB table from the Terraform state (make sure to replace the name of the vault module you've used - `module.vault`)
-  ```
-  terraform state rm module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
-  ```
+    ```
+    terraform state rm module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
+    ```
 1. Import the new DynamoDB table to the Terraform state (make sure to replace the name of the vault module and the name of your new DynamoDB table)
-  ```
-  terraform import module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table yournewdynamotable
-  ```
+    ```
+    terraform import module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table yournewdynamotable
+    ```
 1. Taint the Vault instances so they are replaced with the new DynamoDB table name. You have to do this, as Terraform ignores any changes on the instances user-data, which is where the DynamoDB table name is set. **Note that doing this will force a replace of those instances in your next terraform apply**
-  ```
-  terraform taint -module ha_vault.vault1 aws_instance.instance
-  terraform taint -module ha_vault.vault2 aws_instance.instance
-  ```
+    ```
+    terraform taint -module ha_vault.vault1 aws_instance.instance
+    terraform taint -module ha_vault.vault2 aws_instance.instance
+    ```
 1. Apply terraform. This should make the following changes:
-  - Modify the IAM policy to grant access to the new DynamoDB table
-  - Replace both Vault instances
-  - Configure autoscaling to the new DynamoDB table (if capacity autoscaling is enabled)
+    - Modify the IAM policy to grant access to the new DynamoDB table
+    - Replace both Vault instances
+    - Configure autoscaling to the new DynamoDB table (if capacity autoscaling is enabled)
 1. Wait until the new EC2 instances are up and marked as healthy in the individual ALB target groups, then unseal vault
 1. Decide what to do with the old DynamoDB table. You can keep it in case you want to do another restore, or you can just delete it
 
@@ -185,24 +185,24 @@ In case you also have cross-region replication (Global tables) enabled, the proc
 1. Once the restore is finished, export the data from your new DynamoDB table to S3. You can do this with Data Pipeline following [this guide from AWS](https://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-importexport-ddb-part2.html).
 1. In next steps we're going to create a new DynamoDB table, so choose a name for it and set it in the `dynamodb_table_name_override` variable. Remember that DynamoDB table names must be unique. An alternative would be to remove the existing DynamoDB table and reuse the same name for the new table, but that way you would loose all the incremental backups from your old table. If you choose to do that, just remove the table from the AWS console and skip steps 4 and 5.
 1. Remove the old DynamoDB tables from the Terraform state (make sure to replace the name of the vault module you've used - `module.vault`)
-  ```
-  terraform state rm module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
-  terraform state rm module.vault.module.replica_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
-  terraform state rm module.vault.aws_dynamodb_global_table.vault_global_table
-  ```
+    ```
+    terraform state rm module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
+    terraform state rm module.vault.module.replica_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
+    terraform state rm module.vault.aws_dynamodb_global_table.vault_global_table
+    ```
 1. Apply terraform targeting just the global table resource. This will create your new DynamoDB tables
-  ```
-  terraform apply -target module.vault.aws_dynamodb_global_table.vault_global_table -var-file myvars.tfvars
-  ```
+    ```
+    terraform apply -target module.vault.aws_dynamodb_global_table.vault_global_table -var-file myvars.tfvars
+    ```
 1. Import the Vault data from S3 to the newly created table. Same as with the export, you can do this with Data Pipeline following [this guide from AWS](https://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-importexport-ddb-part1.html). *Note that as of this writing, the import data pipeline doesn't compute correctly the write capacity of a global table, as it adds the write capacity of all the tables belonging to the global table. So if there are two tables in a global table, both with a provisioned write capacity of 40, the data pipeline will assume the table has a provisioned write capacity of 80, and in consequence there will be a lot of throttled write requests. A workaround is to set the DynamoDB write throughput ratio of the pipeline to 0.5*
 1. After the import is complete, taint the Vault instances so they are replaced with the new DynamoDB table name. You have to do this, as Terraform ignores any changes on the instances user-data, which is where the DynamoDB table name is set. **Note that doing this will force a replace of those instances in your next terraform apply**
-  ```
-  terraform taint -module ha_vault.vault1 aws_instance.instance
-  terraform taint -module ha_vault.vault2 aws_instance.instance
-  ```
+    ```
+    terraform taint -module ha_vault.vault1 aws_instance.instance
+    terraform taint -module ha_vault.vault2 aws_instance.instance
+    ```
 1. Apply terraform. This should make the following changes:
-  - Modify the IAM policy to grant access to the new DynamoDB table
-  - Replace both Vault instances
-  - Configure autoscaling to the new DynamoDB table (if capacity autoscaling is enabled)
+    - Modify the IAM policy to grant access to the new DynamoDB table
+    - Replace both Vault instances
+    - Configure autoscaling to the new DynamoDB table (if capacity autoscaling is enabled)
 1. Wait until the new EC2 instances are up and marked as healthy in the individual ALB target groups, then unseal vault
 1. Decide what to do with the old DynamoDB table. You can keep it in case you want to do another restore, or you can just delete it
