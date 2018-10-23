@@ -18,12 +18,12 @@ variable "dns_root" {
 
 variable "download_url_vault" {
   description = "The download url for vault"
-  default     = "https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip"
+  default     = "https://releases.hashicorp.com/vault/0.11.3/vault_0.11.3_linux_386.zip"
 }
 
 variable "download_url_teleport" {
   description = "The download url for Teleport"
-  default     = "https://github.com/gravitational/teleport/releases/download/v2.3.5/teleport-v2.3.5-linux-amd64-bin.tar.gz"
+  default     = "https://github.com/gravitational/teleport/releases/download/v2.7.5/teleport-v2.7.5-linux-amd64-bin.tar.gz"
 }
 
 variable "teleport_auth_server" {
