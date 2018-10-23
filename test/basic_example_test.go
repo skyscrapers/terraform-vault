@@ -42,7 +42,7 @@ func TestBasicExample(t *testing.T) {
 	})
 
 	test_structure.RunTestStage(t, "deploy", func() {
-		uniqueID := random.UniquId()
+		uniqueID := random.UniqueId()
 
 		projectName := fmt.Sprintf("vault-%s", uniqueID)
 
