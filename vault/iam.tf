@@ -93,7 +93,7 @@ data "aws_iam_policy_document" "vault" {
 }
 
 resource "aws_iam_policy" "vault" {
-  name   = "vault_instance_policy"
+  name   = "vault_instance_policy_${var.environment}"
   path   = "/"
   policy = "${data.aws_iam_policy_document.vault.json}"
 }
