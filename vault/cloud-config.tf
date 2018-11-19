@@ -54,6 +54,7 @@ data "template_file" "cloudconfig_vault1" {
     dynamodb_table_name = "${local.dynamodb_table_name}"
     acme_server         = "${var.acme_server}"
     le_email            = "${var.le_email}"
+    region              = "${data.aws_region.main.name}"
   }
 }
 
@@ -69,6 +70,7 @@ data "template_file" "cloudconfig_vault2" {
     dynamodb_table_name = "${local.dynamodb_table_name}"
     acme_server         = "${var.acme_server}"
     le_email            = "${var.le_email}"
+    region              = "${data.aws_region.main.name}"
   }
 }
 
