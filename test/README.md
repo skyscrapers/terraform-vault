@@ -24,9 +24,7 @@ clean up.
 - Install the latest version of [Go](https://golang.org/).
 - Install [dep](https://github.com/golang/dep) for Go dependency management.
 - Install [Terraform](https://www.terraform.io/downloads.html).
-- Configure your AWS credentials using one of the [options supported by the AWS
-  SDK](http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html). Usually, the easiest option is to
-  set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables.
+- Configure your AWS credentials using one of the [options supported by the AWS SDK](http://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html). Usually, the easiest option is to set the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables.
 
 ### Pre-existing resources
 

@@ -58,7 +58,7 @@ ${teleport_service}
 - content: |
     storage "dynamodb" {
       ha_enabled = "true"
-      region     = "eu-west-1"
+      region     = "${region}"
       table      = "${dynamodb_table_name}"
     }
 

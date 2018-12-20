@@ -23,7 +23,7 @@ variable "download_url_vault" {
 
 variable "download_url_teleport" {
   description = "The download url for Teleport"
-  default     = "https://github.com/gravitational/teleport/releases/download/v2.7.5/teleport-v2.7.5-linux-amd64-bin.tar.gz"
+  default     = "https://get.gravitational.com/teleport-v3.0.1-linux-amd64-bin.tar.gz"
 }
 
 variable "teleport_auth_server" {
