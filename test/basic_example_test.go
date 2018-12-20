@@ -1,27 +1,26 @@
 package test
 
 import (
-	"testing"
 	"fmt"
-	"time"
 	"os"
+	"testing"
+	"time"
 
-	"github.com/gruntwork-io/terratest/modules/random"
-	"github.com/gruntwork-io/terratest/modules/test-structure"
-	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/gruntwork-io/terratest/modules/retry"
 	"github.com/gruntwork-io/terratest/modules/logger"
+	"github.com/gruntwork-io/terratest/modules/random"
+	"github.com/gruntwork-io/terratest/modules/retry"
+	"github.com/gruntwork-io/terratest/modules/terraform"
+	"github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/hashicorp/vault/api"
 )
 
 // From: https://www.vaultproject.io/api/system/health.html
-type VaultStatus int
 
 const (
-	Leader        VaultStatus = 200
-	Standby                   = 429
-	Uninitialized             = 501
-	Sealed                    = 503
+	Leader        = 200
+	Standby       = 429
+	Uninitialized = 501
+	Sealed        = 503
 )
 
 type VaultCluster struct {
@@ -43,22 +42,23 @@ func TestBasicExample(t *testing.T) {
 	})
 
 	test_structure.RunTestStage(t, "deploy", func() {
-		uniqueId := random.UniqueId()
-		projectName := fmt.Sprintf("vault-%s", uniqueId)
+		uniqueID := random.UniqueId()
+
+		projectName := fmt.Sprintf("vault-%s", uniqueID)
 
 		terraformOptions := &terraform.Options{
 			TerraformDir: exampleFolder,
 
 			// Variables to pass to our Terraform code using -var options
 			Vars: map[string]interface{}{
-				"vault_acm_arn": os.Getenv("TEST_ACM_ARN"),
+				"vault_acm_arn":  os.Getenv("TEST_ACM_ARN"),
 				"vault_dns_root": os.Getenv("TEST_R53_ZONE_NAME"),
-				"le_email": os.Getenv("TEST_LE_EMAIL"),
-				"key_name": os.Getenv("TEST_KEY_NAME"),
-				"vault_version": "0.9.3",
-				"project": projectName,
-				"acme_server": "https://acme-staging.api.letsencrypt.org/directory",
-				"lb_internal": false,
+				"le_email":       os.Getenv("TEST_LE_EMAIL"),
+				"key_name":       os.Getenv("TEST_KEY_NAME"),
+				"vault_version":  "0.11.3",
+				"project":        projectName,
+				"acme_server":    "https://acme-staging.api.letsencrypt.org/directory",
+				"lb_internal":    false,
 			},
 
 			EnvVars: map[string]string{
@@ -88,22 +88,22 @@ func TestGlobalTableExample(t *testing.T) {
 	})
 
 	test_structure.RunTestStage(t, "deploy", func() {
-		uniqueId := random.UniqueId()
-		projectName := fmt.Sprintf("vault-%s", uniqueId)
+		uniqueID := random.UniqueId()
+		projectName := fmt.Sprintf("vault-%s", uniqueID)
 
 		terraformOptions := &terraform.Options{
 			TerraformDir: exampleFolder,
 
 			// Variables to pass to our Terraform code using -var options
 			Vars: map[string]interface{}{
-				"vault_acm_arn": os.Getenv("TEST_ACM_ARN"),
-				"vault_dns_root": os.Getenv("TEST_R53_ZONE_NAME"),
-				"le_email": os.Getenv("TEST_LE_EMAIL"),
-				"key_name": os.Getenv("TEST_KEY_NAME"),
-				"vault_version": "0.9.3",
-				"project": projectName,
-				"acme_server": "https://acme-staging.api.letsencrypt.org/directory",
-				"lb_internal": false,
+				"vault_acm_arn":           os.Getenv("TEST_ACM_ARN"),
+				"vault_dns_root":          os.Getenv("TEST_R53_ZONE_NAME"),
+				"le_email":                os.Getenv("TEST_LE_EMAIL"),
+				"key_name":                os.Getenv("TEST_KEY_NAME"),
+				"vault_version":           "0.11.3",
+				"project":                 projectName,
+				"acme_server":             "https://acme-staging.api.letsencrypt.org/directory",
+				"lb_internal":             false,
 				"dynamodb_replica_region": "eu-west-2",
 			},
 
@@ -167,7 +167,7 @@ func findVaultClusterNodes(t *testing.T) VaultCluster {
 	}
 
 	return VaultCluster{
-		main: main,
+		main:   main,
 		vault1: vault1,
 		vault2: vault2,
 	}
@@ -178,7 +178,7 @@ func initializeVault(t *testing.T, cluster *VaultCluster) {
 	logger.Logf(t, "Initializing the cluster")
 
 	init, err := cluster.main.Sys().Init(&api.InitRequest{
-		SecretShares: 1,
+		SecretShares:    1,
 		SecretThreshold: 1,
 	})
 
@@ -208,11 +208,11 @@ func waitForVaultToBoot(t *testing.T, cluster VaultCluster) {
 }
 
 // Check that the Vault node at the given host has the given
-func assertStatus(t *testing.T, node *api.Client, expectedStatus VaultStatus) {
+func assertStatus(t *testing.T, node *api.Client, expectedStatus int) {
 	description := fmt.Sprintf("Check that Vault %s has status %d", node.Address(), int(expectedStatus))
 	logger.Logf(t, description)
 
-	maxRetries := 30
+	maxRetries := 50
 	sleepBetweenRetries := 10 * time.Second
 
 	out := retry.DoWithRetry(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {
@@ -223,8 +223,8 @@ func assertStatus(t *testing.T, node *api.Client, expectedStatus VaultStatus) {
 }
 
 // Check the status of the given Vault node and ensure it matches the expected status.
-func checkStatus(t *testing.T, node *api.Client, expectedStatus VaultStatus) (string, error) {
-  health, err := node.Sys().Health()
+func checkStatus(t *testing.T, node *api.Client, expectedStatus int) (string, error) {
+	health, err := node.Sys().Health()
 
 	if err != nil {
 		return "", err
@@ -233,12 +233,11 @@ func checkStatus(t *testing.T, node *api.Client, expectedStatus VaultStatus) (st
 	status := buildStatusCode(health)
 	if status == int(expectedStatus) {
 		return fmt.Sprintf("Got expected status code %d", status), nil
-	} else {
-		return "", fmt.Errorf("Expected status code %d, but got %d", int(expectedStatus), status)
 	}
+	return "", fmt.Errorf("Expected status code %d, but got %d", int(expectedStatus), status)
 }
 
-func buildStatusCode(health *api.HealthResponse) (int) {
+func buildStatusCode(health *api.HealthResponse) int {
 	if !health.Initialized {
 		return 501
 	}

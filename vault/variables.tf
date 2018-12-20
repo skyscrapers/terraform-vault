@@ -18,7 +18,7 @@ variable "dns_root" {
 
 variable "download_url_vault" {
   description = "The download url for vault"
-  default     = "https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip"
+  default     = "https://releases.hashicorp.com/vault/0.11.3/vault_0.11.3_linux_386.zip"
 }
 
 variable "download_url_teleport" {
