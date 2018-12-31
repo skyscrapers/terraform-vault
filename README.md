@@ -1,5 +1,7 @@
 # Terraform Vault
 
+[![ci.skyscrape.rs](https://ci.skyscrape.rs/api/v1/teams/skyscrapers/pipelines/terraform-modules/jobs/test-terraform-vault-master/badge)](https://ci.skyscrape.rs/teams/skyscrapers/pipelines/terraform-modules?groups=terraform-vault)
+
 Terraform module(s) to setup Vault on AWS
 
 ## Vault
