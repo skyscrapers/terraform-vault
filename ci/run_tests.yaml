@@ -11,11 +11,12 @@ params:
   TEST_R53_ZONE_NAME: ''
   TEST_ACM_ARN: ''
   TEST_LE_EMAIL: 'something@example.com'
-  TF_VERSION: '0.11.7'
 
 inputs:
 - name: terraform-src
   path: gopath/src/github.com/skyscrapers/terraform-vault
+- name: vault-release
+- name: terraform-release
 
 run:
   path: sh
@@ -24,10 +25,12 @@ run:
     - |
       apk add --update unzip curl dep git
 
-      # Install terraform
-      curl -s -o "terraform.zip" "https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip"
-      unzip terraform.zip
-      export PATH=$PATH:$PWD
+      # Unzip terraform binary
+      unzip terraform-release/terraform_*_linux_amd64.zip -d /usr/local/bin
+      chmod +x /usr/local/bin/terraform
+
+      # Set the Vault version env variable
+      TEST_VAULT_VERSION="`cat vault-release/version`"
 
       export GOPATH=$PWD/gopath
 

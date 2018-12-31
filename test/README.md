@@ -65,3 +65,7 @@ export TEST_ACM_ARN="arn:aws:acm:eu-west-1:1234567890:certificate/uev7722-434t-5
 export TEST_LE_EMAIL="something@example.com"
 go test -v -timeout 60m -run TestFoo
 ```
+
+### Vault version
+
+You can also provide the `TEST_VAULT_VERSION` environment variable to specify a Vault version to use in the tests.
