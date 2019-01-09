@@ -16,14 +16,14 @@ variable "dns_root" {
   default     = "production.skyscrape.rs"
 }
 
-variable "download_url_vault" {
-  description = "The download url for vault"
-  default     = "https://releases.hashicorp.com/vault/0.11.3/vault_0.11.3_linux_386.zip"
+variable "vault_version" {
+  description = "The Vault version to deploy"
+  default     = "1.0.1"
 }
 
-variable "download_url_teleport" {
-  description = "The download url for Teleport"
-  default     = "https://get.gravitational.com/teleport-v3.0.1-linux-amd64-bin.tar.gz"
+variable "teleport_version" {
+  description = "The Teleport version to deploy"
+  default     = "3.0.1"
 }
 
 variable "teleport_auth_server" {
@@ -135,7 +135,7 @@ variable "le_email" {
 }
 
 variable "enable_point_in_time_recovery" {
-  description = "Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that additional charges will apply by enabling this setting (https://aws.amazon.com/dynamodb/pricing/)"
+  description = "Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that [additional charges](https://aws.amazon.com/dynamodb/pricing/) will apply by enabling this setting"
   default     = true
 }
 
