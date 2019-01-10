@@ -30,14 +30,6 @@ type VaultCluster struct {
 	initResponse *api.InitResponse
 }
 
-func getenv(key, fallback string) string {
-	value := os.Getenv(key)
-	if len(value) == 0 {
-		return fallback
-	}
-	return value
-}
-
 // An example of how to test the simple Terraform module in examples/basic using Terratest.
 func TestBasicExample(t *testing.T) {
 	// The path to where our Terraform code is located
@@ -63,7 +55,7 @@ func TestBasicExample(t *testing.T) {
 				"vault_dns_root": os.Getenv("TEST_R53_ZONE_NAME"),
 				"le_email":       os.Getenv("TEST_LE_EMAIL"),
 				"key_name":       os.Getenv("TEST_KEY_NAME"),
-				"vault_version":  getenv("TEST_VAULT_VERSION", "0.11.3"),
+				"vault_version":  os.Getenv("TEST_VAULT_VERSION"),
 				"project":        projectName,
 				"acme_server":    "https://acme-staging.api.letsencrypt.org/directory",
 				"lb_internal":    false,
@@ -108,7 +100,7 @@ func TestGlobalTableExample(t *testing.T) {
 				"vault_dns_root":          os.Getenv("TEST_R53_ZONE_NAME"),
 				"le_email":                os.Getenv("TEST_LE_EMAIL"),
 				"key_name":                os.Getenv("TEST_KEY_NAME"),
-				"vault_version":           "0.11.3",
+				"vault_version":           os.Getenv("TEST_VAULT_VERSION"),
 				"project":                 projectName,
 				"acme_server":             "https://acme-staging.api.letsencrypt.org/directory",
 				"lb_internal":             false,
@@ -220,7 +212,7 @@ func assertStatus(t *testing.T, node *api.Client, expectedStatus int) {
 	description := fmt.Sprintf("Check that Vault %s has status %d", node.Address(), int(expectedStatus))
 	logger.Logf(t, description)
 
-	maxRetries := 50
+	maxRetries := 70
 	sleepBetweenRetries := 10 * time.Second
 
 	out := retry.DoWithRetry(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {

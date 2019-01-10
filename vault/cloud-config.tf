@@ -78,8 +78,8 @@ data "template_file" "install" {
   template = "${file("${path.module}/templates/install.sh.tpl")}"
 
   vars {
-    download_url_vault    = "${var.download_url_vault}"
-    download_url_teleport = "${var.download_url_teleport}"
+    download_url_vault    = "https://releases.hashicorp.com/vault/${var.vault_version}/vault_${var.vault_version}_linux_386.zip"
+    download_url_teleport = "https://get.gravitational.com/teleport-v${var.teleport_version}-linux-amd64-bin.tar.gz"
     teleport_auth_server  = "${var.teleport_auth_server}"
   }
 }

@@ -12,9 +12,7 @@ variable "lb_internal" {
   default = "true"
 }
 
-variable "vault_version" {
-  default = "0.10.3"
-}
+variable "vault_version" {}
 
 variable "cidr_block" {
   default = "172.30.0.0/16"

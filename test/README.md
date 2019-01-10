@@ -39,7 +39,7 @@ These tests expect some AWS resources to be already there to be able to run prop
 
 Download Go dependencies using dep:
 
-```
+```bash
 cd test
 dep ensure
 ```
@@ -48,6 +48,7 @@ dep ensure
 
 ```bash
 cd test
+export TEST_VAULT_VERSION="1.0.1"
 export TEST_R53_ZONE_NAME="test.example.com"
 export TEST_ACM_ARN="arn:aws:acm:eu-west-1:1234567890:certificate/uev7722-434t-55g7-86ba-a882d9da1fa5"
 export TEST_LE_EMAIL="something@example.com"
@@ -60,12 +61,9 @@ To run a specific test called `TestFoo`:
 
 ```bash
 cd test
+export TEST_VAULT_VERSION="1.0.1"
 export TEST_R53_ZONE_NAME="test.example.com"
 export TEST_ACM_ARN="arn:aws:acm:eu-west-1:1234567890:certificate/uev7722-434t-55g7-86ba-a882d9da1fa5"
 export TEST_LE_EMAIL="something@example.com"
 go test -v -timeout 60m -run TestFoo
 ```
-
-### Vault version
-
-You can also provide the `TEST_VAULT_VERSION` environment variable to specify a Vault version to use in the tests.

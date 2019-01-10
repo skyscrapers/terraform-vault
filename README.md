@@ -13,13 +13,13 @@ Both vault servers are optionally configured with Teleport for SSH management.
 
 Two route53 records are provided to access the individual instances.
 
-![](vault/images/vault-component.svg)
+![architecture-diagram](vault/images/vault-component.svg)
 
 ### Terraform providers
 
 Because this module can be configured to setup a DynamoDB table in a separate region from the main table, it expects two Terraform providers: `aws` and `aws.replica`. If you want to enable the replica table, you'll need to create a second `aws` provider targeting the region you want to put the replica table in, and then pass it on to the module as `aws.replica`:
 
-```
+```tf
 provider "aws" {
   region = "eu-west-1"
 }
@@ -43,7 +43,7 @@ module "vault" {
 
 If you don't want to enable the replica table, you still need to set the `providers` block in the vault module, but you can set the default `aws` provider in both "slots", like so:
 
-```
+```tf
 provider "aws" {
   region = "eu-west-1"
 }
@@ -68,8 +68,6 @@ module "vault" {
 | acme_server | ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server. | string | `https://acme-v01.api.letsencrypt.org/directory` | no |
 | ami | The AMI ID to use for the vault instances | string | - | yes |
 | dns_root | The root domain to configure for vault | string | `production.skyscrape.rs` | no |
-| download_url_teleport | The download url for Teleport | string | `https://github.com/gravitational/teleport/releases/download/v2.3.5/teleport-v2.3.5-linux-amd64-bin.tar.gz` | no |
-| download_url_vault | The download url for vault | string | `https://releases.hashicorp.com/vault/0.9.0/vault_0.9.0_linux_amd64.zip` | no |
 | dynamodb_max_read_capacity | The max read capacity of the Vault dynamodb table | string | `100` | no |
 | dynamodb_max_write_capacity | The max write capacity of the Vault dynamodb table | string | `100` | no |
 | dynamodb_min_read_capacity | The min read capacity of the Vault dynamodb table | string | `5` | no |
@@ -77,7 +75,7 @@ module "vault" {
 | dynamodb_table_name_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `` | no |
 | enable_dynamodb_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `true` | no |
 | enable_dynamodb_replica_table | Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider | string | `false` | no |
-| enable_point_in_time_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that additional charges will apply by enabling this setting (https://aws.amazon.com/dynamodb/pricing/) | string | `true` | no |
+| enable_point_in_time_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that [additional charges](https://aws.amazon.com/dynamodb/pricing/) will apply by enabling this setting | string | `true` | no |
 | environment | Name of the environment where to deploy Vault (just for naming reasons) | string | - | yes |
 | instance_type | The instance type to use for the vault servers | string | `t2.micro` | no |
 | key_name | Name of the sshkey to deploy on the vault instances | string | - | yes |
@@ -91,9 +89,11 @@ module "vault" {
 | teleport_node_sg | The security-group ID of the teleport server | string | `` | no |
 | teleport_token_1 | The Teleport token for the first instance. This can be a dynamic short-lived token | string | `` | no |
 | teleport_token_2 | The Teleport token for the second instance. This can be a dynamic short-lived token | string | `` | no |
+| teleport_version | The Teleport version to deploy | string | `3.0.1` | no |
 | vault1_subnet | The subnet ID for the first vault instance | string | - | yes |
 | vault2_subnet | The subnet ID for the second vault instance | string | - | yes |
 | vault_nproc | The amount of nproc to configure vault with. Set this to the amount of CPU cores | string | `1` | no |
+| vault_version | The Vault version to deploy | string | `1.0.1` | no |
 | vpc_id | The VPC id to launch the instances in | string | - | yes |
 
 ### Output
@@ -127,7 +127,7 @@ module "vault" {
 
 In v3.x of this module, the DynamoDB table creation has been moved inside a nested Terraform module. To avoid having to re-create such table, you'll need to move/rename it inside the state. The following Terraform commands should suffice:
 
-```
+```bash
 terraform state mv module.ha_vault.aws_appautoscaling_policy.dynamodb_table_read_policy module.ha_vault.module.main_dynamodb_table.aws_appautoscaling_policy.dynamodb_table_read_policy
 terraform state mv module.ha_vault.aws_appautoscaling_policy.dynamodb_table_write_policy module.ha_vault.module.main_dynamodb_table.aws_appautoscaling_policy.dynamodb_table_write_policy
 terraform state mv module.ha_vault.aws_appautoscaling_target.dynamodb_table_read_target module.ha_vault.module.main_dynamodb_table.aws_appautoscaling_target.dynamodb_table_read_target
@@ -159,15 +159,15 @@ Follow this process only if you don't have cross-region replication enabled. If 
 1. Restore your data to a new DynamoDB table.
 1. Set `dynamodb_table_name_override` variable to the name of your new DynamoDB table
 1. Remove the old DynamoDB table from the Terraform state (make sure to replace the name of the vault module you've used - `module.vault`)
-    ```
+    ```bash
     terraform state rm module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
     ```
 1. Import the new DynamoDB table to the Terraform state (make sure to replace the name of the vault module and the name of your new DynamoDB table)
-    ```
+    ```bash
     terraform import module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table yournewdynamotable
     ```
 1. Taint the Vault instances so they are replaced with the new DynamoDB table name. You have to do this, as Terraform ignores any changes on the instances user-data, which is where the DynamoDB table name is set. **Note that doing this will force a replace of those instances in your next terraform apply**
-    ```
+    ```bash
     terraform taint -module ha_vault.vault1 aws_instance.instance
     terraform taint -module ha_vault.vault2 aws_instance.instance
     ```
@@ -187,18 +187,18 @@ In case you also have cross-region replication (Global tables) enabled, the proc
 1. Once the restore is finished, export the data from your new DynamoDB table to S3. You can do this with Data Pipeline following [this guide from AWS](https://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-importexport-ddb-part2.html).
 1. In next steps we're going to create a new DynamoDB table, so choose a name for it and set it in the `dynamodb_table_name_override` variable. Remember that DynamoDB table names must be unique. An alternative would be to remove the existing DynamoDB table and reuse the same name for the new table, but that way you would loose all the incremental backups from your old table. If you choose to do that, just remove the table from the AWS console and skip steps 4 and 5.
 1. Remove the old DynamoDB tables from the Terraform state (make sure to replace the name of the vault module you've used - `module.vault`)
-    ```
+    ```bash
     terraform state rm module.vault.module.main_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
     terraform state rm module.vault.module.replica_dynamodb_table.aws_dynamodb_table.vault_dynamodb_table
     terraform state rm module.vault.aws_dynamodb_global_table.vault_global_table
     ```
 1. Apply terraform targeting just the global table resource. This will create your new DynamoDB tables
-    ```
+    ```bash
     terraform apply -target module.vault.aws_dynamodb_global_table.vault_global_table -var-file myvars.tfvars
     ```
 1. Import the Vault data from S3 to the newly created table. Same as with the export, you can do this with Data Pipeline following [this guide from AWS](https://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-importexport-ddb-part1.html). *Note that as of this writing, the import data pipeline doesn't compute correctly the write capacity of a global table, as it adds the write capacity of all the tables belonging to the global table. So if there are two tables in a global table, both with a provisioned write capacity of 40, the data pipeline will assume the table has a provisioned write capacity of 80, and in consequence there will be a lot of throttled write requests. A workaround is to set the DynamoDB write throughput ratio of the pipeline to 0.5*
 1. After the import is complete, taint the Vault instances so they are replaced with the new DynamoDB table name. You have to do this, as Terraform ignores any changes on the instances user-data, which is where the DynamoDB table name is set. **Note that doing this will force a replace of those instances in your next terraform apply**
-    ```
+    ```bash
     terraform taint -module ha_vault.vault1 aws_instance.instance
     terraform taint -module ha_vault.vault2 aws_instance.instance
     ```

@@ -33,7 +33,7 @@ run:
       chmod +x /usr/local/bin/terraform
 
       # Set the Vault version env variable
-      TEST_VAULT_VERSION="`cat vault-release/version`"
+      export TEST_VAULT_VERSION="`cat vault-release/version`"
 
       export GOPATH=$PWD/gopath
 
