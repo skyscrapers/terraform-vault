@@ -212,7 +212,7 @@ func assertStatus(t *testing.T, node *api.Client, expectedStatus int) {
 	description := fmt.Sprintf("Check that Vault %s has status %d", node.Address(), int(expectedStatus))
 	logger.Logf(t, description)
 
-	maxRetries := 50
+	maxRetries := 70
 	sleepBetweenRetries := 10 * time.Second
 
 	out := retry.DoWithRetry(t, description, maxRetries, sleepBetweenRetries, func() (string, error) {
