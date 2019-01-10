@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 	"time"
+	"net/http"
 
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/random"
@@ -73,7 +74,7 @@ func TestBasicExample(t *testing.T) {
 	})
 
 	test_structure.RunTestStage(t, "validate", func() {
-		initializeAndUnsealVaultCluster(t)
+		initializeAndUnsealVaultCluster(t, 404)
 	})
 }
 
@@ -119,12 +120,12 @@ func TestGlobalTableExample(t *testing.T) {
 	})
 
 	test_structure.RunTestStage(t, "validate", func() {
-		initializeAndUnsealVaultCluster(t)
+		initializeAndUnsealVaultCluster(t, 200)
 	})
 }
 
 // Initialize the Vault cluster and unseal each of the nodes via the Vault API
-func initializeAndUnsealVaultCluster(t *testing.T) {
+func initializeAndUnsealVaultCluster(t *testing.T, ui_enabled int) {
 	cluster := findVaultClusterNodes(t)
 
 	waitForVaultToBoot(t, cluster)
@@ -138,6 +139,8 @@ func initializeAndUnsealVaultCluster(t *testing.T) {
 	assertStatus(t, cluster.vault2, Sealed)
 	unsealVaultNode(t, cluster.vault2, cluster.initResponse.Keys)
 	assertStatus(t, cluster.vault2, Standby)
+
+	assertUI(t, cluster.main, ui_enabled)
 }
 
 // Create the api objects for the three vault endpoints: main, vault1 and vault2
@@ -249,4 +252,19 @@ func buildStatusCode(health *api.HealthResponse) int {
 	}
 
 	return 200
+}
+
+func assertUI(t *testing.T, node *api.Client, ui_enabled int) {
+	ui_endpoint := fmt.Sprintf("%s/ui", node.Address())
+	resp, err := http.Head(ui_endpoint)
+	if err != nil {
+		t.Fatalf("Error while checking the UI endpoint %v", err)
+	}
+	defer resp.Body.Close()
+
+	if ui_enabled == resp.StatusCode {
+		logger.Logf(t, fmt.Sprintf("Status of the Vault UI is correct %d", resp.StatusCode))
+	} else {
+		t.Fatalf("Vault UI expected to give status %d, but got %d", ui_enabled, resp.StatusCode)
+	}
 }
