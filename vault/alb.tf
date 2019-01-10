@@ -34,9 +34,10 @@ resource "aws_lb_target_group" "vault1" {
   }
 
   health_check = {
-    matcher  = "404"
-    protocol = "HTTPS"
-    path     = "/"
+    matcher           = "404"
+    protocol          = "HTTPS"
+    path              = "/"
+    healthy_threshold = 4
   }
 }
 
@@ -73,9 +74,10 @@ resource "aws_lb_target_group" "vault2" {
   }
 
   health_check = {
-    matcher  = "404"
-    protocol = "HTTPS"
-    path     = "/"
+    matcher           = "404"
+    protocol          = "HTTPS"
+    path              = "/"
+    healthy_threshold = 4
   }
 }
 
