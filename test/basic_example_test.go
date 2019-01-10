@@ -208,6 +208,9 @@ func unsealVaultNode(t *testing.T, node *api.Client, unsealKeys []string) {
 func waitForVaultToBoot(t *testing.T, cluster VaultCluster) {
 	logger.Logf(t, "Waiting for Vault to boot the first time on host %s. Expecting it to be in uninitialized status (%d).", cluster.main.Address(), int(Uninitialized))
 	assertStatus(t, cluster.main, Uninitialized)
+	// Sometimes when booting Vault instances might momentarily go back to "Unhealthy" after being healthy,
+	// so wait for 5 seconds and check the status again before proceeding with the tests.
+	time.Sleep(5 * time.Second)
 	assertStatus(t, cluster.main, Uninitialized)
 }
 
