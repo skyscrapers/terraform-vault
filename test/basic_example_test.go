@@ -208,6 +208,7 @@ func unsealVaultNode(t *testing.T, node *api.Client, unsealKeys []string) {
 func waitForVaultToBoot(t *testing.T, cluster VaultCluster) {
 	logger.Logf(t, "Waiting for Vault to boot the first time on host %s. Expecting it to be in uninitialized status (%d).", cluster.main.Address(), int(Uninitialized))
 	assertStatus(t, cluster.main, Uninitialized)
+	assertStatus(t, cluster.main, Uninitialized)
 }
 
 // Check that the Vault node at the given host has the given
