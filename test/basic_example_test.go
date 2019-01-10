@@ -100,7 +100,7 @@ func TestGlobalTableExample(t *testing.T) {
 				"vault_dns_root":          os.Getenv("TEST_R53_ZONE_NAME"),
 				"le_email":                os.Getenv("TEST_LE_EMAIL"),
 				"key_name":                os.Getenv("TEST_KEY_NAME"),
-				"vault_version":           "0.11.3",
+				"vault_version":           os.Getenv("TEST_VAULT_VERSION"),
 				"project":                 projectName,
 				"acme_server":             "https://acme-staging.api.letsencrypt.org/directory",
 				"lb_internal":             false,
