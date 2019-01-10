@@ -85,17 +85,29 @@ data "template_file" "install" {
 }
 
 module "teleport_vault1" {
-  source      = "github.com/skyscrapers/terraform-teleport//teleport-bootstrap-script?ref=3.2.3"
+  source      = "github.com/skyscrapers/terraform-teleport//teleport-bootstrap-script?ref=3.3.5"
   auth_server = "${var.teleport_auth_server}"
   auth_token  = "${var.teleport_token_1}"
   function    = "vault1"
   environment = "${var.environment}"
+  project     = "${var.project}"
+
+  additional_labels = [
+    "vault_version: \"${var.vault_version}\"",
+    "instance_type: \"${var.instance_type}\"",
+  ]
 }
 
 module "teleport_vault2" {
-  source      = "github.com/skyscrapers/terraform-teleport//teleport-bootstrap-script?ref=3.2.3"
+  source      = "github.com/skyscrapers/terraform-teleport//teleport-bootstrap-script?ref=3.3.5"
   auth_server = "${var.teleport_auth_server}"
   auth_token  = "${var.teleport_token_2}"
   function    = "vault2"
   environment = "${var.environment}"
+  project     = "${var.project}"
+
+  additional_labels = [
+    "vault_version: \"${var.vault_version}\"",
+    "instance_type: \"${var.instance_type}\"",
+  ]
 }
