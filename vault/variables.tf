@@ -143,3 +143,8 @@ variable "enable_dynamodb_replica_table" {
   description = "Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider"
   default     = false
 }
+
+variable "enable_ui" {
+  description = "Enables the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/index.html)"
+  default     = true
+}

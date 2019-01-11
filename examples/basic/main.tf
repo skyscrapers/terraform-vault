@@ -33,4 +33,5 @@ module "ha_vault" {
   environment   = "test"
   acme_server   = "${var.acme_server}"
   le_email      = "${var.le_email}"
+  enable_ui     = false
 }

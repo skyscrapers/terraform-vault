@@ -55,6 +55,7 @@ data "template_file" "cloudconfig_vault1" {
     acme_server         = "${var.acme_server}"
     le_email            = "${var.le_email}"
     region              = "${data.aws_region.main.name}"
+    enable_ui           = "${var.enable_ui ? "true" : "false"}"
   }
 }
 
@@ -71,6 +72,7 @@ data "template_file" "cloudconfig_vault2" {
     acme_server         = "${var.acme_server}"
     le_email            = "${var.le_email}"
     region              = "${data.aws_region.main.name}"
+    enable_ui           = "${var.enable_ui ? "true" : "false"}"
   }
 }
 

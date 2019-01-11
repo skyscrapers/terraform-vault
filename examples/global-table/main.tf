@@ -43,6 +43,7 @@ module "ha_vault" {
   acme_server                   = "${var.acme_server}"
   le_email                      = "${var.le_email}"
   enable_dynamodb_replica_table = true
+  enable_ui                     = true
 
   providers = {
     aws         = "aws"

@@ -56,6 +56,8 @@ ${teleport_service}
 
   path: /etc/systemd/system/vault.service
 - content: |
+    ui = ${enable_ui}
+
     storage "dynamodb" {
       ha_enabled = "true"
       region     = "${region}"
