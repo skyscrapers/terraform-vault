@@ -1,11 +1,9 @@
-variable "vault_acm_arn" {
-}
+variable "vault_acm_arn" {}
 
-variable "vault_dns_root" {
-}
+variable "vault_dns_root" {}
 
 variable "instance_type" {
-  default = "t2.small"
+  default = "t3.small"
 }
 
 variable "lb_internal" {
@@ -22,8 +20,7 @@ variable "custom_ami" {
   default = ""
 }
 
-variable "project" {
-}
+variable "project" {}
 
 variable "acme_server" {
   default = "https://acme-v01.api.letsencrypt.org/directory"

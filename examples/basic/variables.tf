@@ -5,7 +5,7 @@ variable "vault_dns_root" {
 }
 
 variable "instance_type" {
-  default = "t2.small"
+  default = "t3.small"
 }
 
 variable "lb_internal" {
