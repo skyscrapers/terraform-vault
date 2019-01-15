@@ -178,18 +178,24 @@ func findVaultClusterNodes(t *testing.T) VaultCluster {
 
 // Initialize the Vault cluster, filling in the unseal keys in the given vaultCluster struct
 func initializeVault(t *testing.T, cluster *VaultCluster) {
-	logger.Logf(t, "Initializing the cluster")
+	maxRetries := 5
+	sleepBetweenRetries := 10 * time.Second
 
-	init, err := cluster.main.Sys().Init(&api.InitRequest{
-		SecretShares:    1,
-		SecretThreshold: 1,
+	out := retry.DoWithRetry(t, "Initializing the cluster", maxRetries, sleepBetweenRetries, func() (string, error) {
+		init, err := cluster.main.Sys().Init(&api.InitRequest{
+			SecretShares:    1,
+			SecretThreshold: 1,
+		})
+
+		if err == nil {
+			cluster.initResponse = init
+			return "Successfully initialized Vault", nil
+		}
+
+		return "", err
 	})
 
-	if err != nil {
-		t.Fatalf("Failed to initialize Vault due to error %v", err)
-	}
-
-	cluster.initResponse = init
+	logger.Logf(t, out)
 }
 
 // Unseal the given Vault server using the given unseal keys
