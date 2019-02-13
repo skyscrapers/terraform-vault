@@ -148,3 +148,8 @@ variable "enable_ui" {
   description = "Enables the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/index.html)"
   default     = true
 }
+
+variable "ec2_instances_cpu_credits" {
+  description = "The type of cpu credits to use"
+  default     = "standard"
+}

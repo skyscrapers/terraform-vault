@@ -13,6 +13,7 @@ module "vault1" {
   ami           = "${var.ami}"
   instance_type = "${var.instance_type}"
   user_data     = ["${data.template_cloudinit_config.vault1.rendered}"]
+  cpu_credits   = "${var.ec2_instances_cpu_credits}"
 }
 
 module "vault2" {
@@ -26,4 +27,5 @@ module "vault2" {
   ami           = "${var.ami}"
   instance_type = "${var.instance_type}"
   user_data     = ["${data.template_cloudinit_config.vault2.rendered}"]
+  cpu_credits   = "${var.ec2_instances_cpu_credits}"
 }
