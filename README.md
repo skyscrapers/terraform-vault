@@ -64,63 +64,64 @@ module "vault" {
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| acm_arn | The ACM ARN to use on the alb | string | - | yes |
-| acme_server | ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server. | string | `https://acme-v01.api.letsencrypt.org/directory` | no |
-| ami | The AMI ID to use for the vault instances | string | - | yes |
-| dns_root | The root domain to configure for vault | string | `production.skyscrape.rs` | no |
-| dynamodb_max_read_capacity | The max read capacity of the Vault dynamodb table | string | `100` | no |
-| dynamodb_max_write_capacity | The max write capacity of the Vault dynamodb table | string | `100` | no |
-| dynamodb_min_read_capacity | The min read capacity of the Vault dynamodb table | string | `5` | no |
-| dynamodb_min_write_capacity | The min write capacity of the Vault dynamodb table | string | `5` | no |
-| dynamodb_table_name_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `` | no |
-| enable_dynamodb_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `true` | no |
-| enable_dynamodb_replica_table | Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider | string | `false` | no |
-| enable_point_in_time_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that [additional charges](https://aws.amazon.com/dynamodb/pricing/) will apply by enabling this setting | string | `true` | no |
-| enable_ui | Enables the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/index.html) | string | `true` | no |
-| environment | Name of the environment where to deploy Vault (just for naming reasons) | string | - | yes |
-| instance_type | The instance type to use for the vault servers | string | `t2.micro` | no |
-| key_name | Name of the sshkey to deploy on the vault instances | string | - | yes |
-| lb_internal | Should the ALB be created as an internal Loadbalancer | string | `false` | no |
-| lb_subnets | The subnets to use for the alb | list | - | yes |
-| le_email | The email address that's going to be used to register to LetsEncrypt | string | - | yes |
-| project | Name of the project | string | - | yes |
-| replica_dynamodb_max_read_capacity | The max read capacity of the Vault dynamodb replica table | string | `5` | no |
-| replica_dynamodb_min_read_capacity | The min read capacity of the Vault dynamodb replica table | string | `5` | no |
-| teleport_auth_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `` | no |
-| teleport_node_sg | The security-group ID of the teleport server | string | `` | no |
-| teleport_token_1 | The Teleport token for the first instance. This can be a dynamic short-lived token | string | `` | no |
-| teleport_token_2 | The Teleport token for the second instance. This can be a dynamic short-lived token | string | `` | no |
-| teleport_version | The Teleport version to deploy | string | `3.0.1` | no |
-| vault1_subnet | The subnet ID for the first vault instance | string | - | yes |
-| vault2_subnet | The subnet ID for the second vault instance | string | - | yes |
-| vault_nproc | The amount of nproc to configure vault with. Set this to the amount of CPU cores | string | `1` | no |
-| vault_version | The Vault version to deploy | string | `1.0.1` | no |
-| vpc_id | The VPC id to launch the instances in | string | - | yes |
+| acm\_arn | The ACM ARN to use on the alb | string | n/a | yes |
+| acme\_server | ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server. | string | `"https://acme-v01.api.letsencrypt.org/directory"` | no |
+| ami | The AMI ID to use for the vault instances | string | n/a | yes |
+| dns\_root | The root domain to configure for vault | string | `"production.skyscrape.rs"` | no |
+| dynamodb\_max\_read\_capacity | The max read capacity of the Vault dynamodb table | string | `"100"` | no |
+| dynamodb\_max\_write\_capacity | The max write capacity of the Vault dynamodb table | string | `"100"` | no |
+| dynamodb\_min\_read\_capacity | The min read capacity of the Vault dynamodb table | string | `"5"` | no |
+| dynamodb\_min\_write\_capacity | The min write capacity of the Vault dynamodb table | string | `"5"` | no |
+| dynamodb\_table\_name\_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `""` | no |
+| ec2\_instances\_cpu\_credits | The type of cpu credits to use | string | `"standard"` | no |
+| enable\_dynamodb\_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `"true"` | no |
+| enable\_dynamodb\_replica\_table | Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider | string | `"false"` | no |
+| enable\_point\_in\_time\_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that [additional charges](https://aws.amazon.com/dynamodb/pricing/) will apply by enabling this setting | string | `"true"` | no |
+| enable\_ui | Enables the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/index.html) | string | `"true"` | no |
+| environment | Name of the environment where to deploy Vault (just for naming reasons) | string | n/a | yes |
+| instance\_type | The instance type to use for the vault servers | string | `"t2.micro"` | no |
+| key\_name | Name of the sshkey to deploy on the vault instances | string | n/a | yes |
+| lb\_internal | Should the ALB be created as an internal Loadbalancer | string | `"false"` | no |
+| lb\_subnets | The subnets to use for the alb | list | n/a | yes |
+| le\_email | The email address that's going to be used to register to LetsEncrypt | string | n/a | yes |
+| project | Name of the project | string | n/a | yes |
+| replica\_dynamodb\_max\_read\_capacity | The max read capacity of the Vault dynamodb replica table | string | `"5"` | no |
+| replica\_dynamodb\_min\_read\_capacity | The min read capacity of the Vault dynamodb replica table | string | `"5"` | no |
+| teleport\_auth\_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `""` | no |
+| teleport\_node\_sg | The security-group ID of the teleport server | string | `""` | no |
+| teleport\_token\_1 | The Teleport token for the first instance. This can be a dynamic short-lived token | string | `""` | no |
+| teleport\_token\_2 | The Teleport token for the second instance. This can be a dynamic short-lived token | string | `""` | no |
+| teleport\_version | The Teleport version to deploy | string | `"3.0.1"` | no |
+| vault1\_subnet | The subnet ID for the first vault instance | string | n/a | yes |
+| vault2\_subnet | The subnet ID for the second vault instance | string | n/a | yes |
+| vault\_nproc | The amount of nproc to configure vault with. Set this to the amount of CPU cores | string | `"1"` | no |
+| vault\_version | The Vault version to deploy | string | `"1.0.1"` | no |
+| vpc\_id | The VPC id to launch the instances in | string | n/a | yes |
 
 ### Output
 
 | Name | Description |
 |------|-------------|
-| alb_arn | The alb ARN |
-| alb_id | The alb id |
-| alb_main_target_group | The default alb target group ARN |
-| alb_sg_id | The alb security group ID |
-| alb_vault1_target_group | The vault1 target group ARN |
-| alb_vault2_target_group | The vault2 target group ARN |
-| dynamodb_table_name | The Vault dynamodb table name |
-| iam_policy | The iam policy ARN used for vault |
-| main_dynamodb_table_region | Region where the main DynamoDB table will be created |
-| replica_dynamodb_table_region | Region where the replica DynamoDB table will be created, if enabled |
-| sg_id | The vault security-group id |
-| vault1_instance_id | The vault1 instance ID |
-| vault1_role_id | The vault1 instance-role ID |
-| vault1_role_name | The vault1 instance-role name |
-| vault1_route53_record | The vault1 route53 record id |
-| vault2_instance_id | The vault2 instance ID |
-| vault2_role_id | The vault2 instance-role ID |
-| vault2_role_name | The vault2 instance-role name |
-| vault2_route53_record | The vault2 route53 record id |
-| vault_route53_record | The main vault route53 record id |
+| alb\_arn | The alb ARN |
+| alb\_id | The alb id |
+| alb\_main\_target\_group | The default alb target group ARN |
+| alb\_sg\_id | The alb security group ID |
+| alb\_vault1\_target\_group | The vault1 target group ARN |
+| alb\_vault2\_target\_group | The vault2 target group ARN |
+| dynamodb\_table\_name | The Vault dynamodb table name |
+| iam\_policy | The iam policy ARN used for vault |
+| main\_dynamodb\_table\_region | Region where the main DynamoDB table will be created |
+| replica\_dynamodb\_table\_region | Region where the replica DynamoDB table will be created, if enabled |
+| sg\_id | The vault security-group id |
+| vault1\_instance\_id | The vault1 instance ID |
+| vault1\_role\_id | The vault1 instance-role ID |
+| vault1\_role\_name | The vault1 instance-role name |
+| vault1\_route53\_record | The vault1 route53 record id |
+| vault2\_instance\_id | The vault2 instance ID |
+| vault2\_role\_id | The vault2 instance-role ID |
+| vault2\_role\_name | The vault2 instance-role name |
+| vault2\_route53\_record | The vault2 route53 record id |
+| vault\_route53\_record | The main vault route53 record id |
 
 ### Upgrades
 
