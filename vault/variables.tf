@@ -18,7 +18,7 @@ variable "dns_root" {
 
 variable "vault_version" {
   description = "The Vault version to deploy"
-  default     = "1.0.3"
+  default     = "1.1.0"
 }
 
 variable "teleport_version" {
