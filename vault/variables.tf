@@ -23,7 +23,7 @@ variable "vault_version" {
 
 variable "teleport_version" {
   description = "The Teleport version to deploy"
-  default     = "3.0.1"
+  default     = "3.1.8"
 }
 
 variable "teleport_auth_server" {
