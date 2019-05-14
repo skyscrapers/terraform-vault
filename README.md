@@ -91,11 +91,11 @@ module "vault" {
 | teleport\_node\_sg | The security-group ID of the teleport server | string | `""` | no |
 | teleport\_token\_1 | The Teleport token for the first instance. This can be a dynamic short-lived token | string | `""` | no |
 | teleport\_token\_2 | The Teleport token for the second instance. This can be a dynamic short-lived token | string | `""` | no |
-| teleport\_version | The Teleport version to deploy | string | `"3.0.1"` | no |
+| teleport\_version | The Teleport version to deploy | string | `"3.1.8"` | no |
 | vault1\_subnet | The subnet ID for the first vault instance | string | n/a | yes |
 | vault2\_subnet | The subnet ID for the second vault instance | string | n/a | yes |
 | vault\_nproc | The amount of nproc to configure vault with. Set this to the amount of CPU cores | string | `"1"` | no |
-| vault\_version | The Vault version to deploy | string | `"1.1.1"` | no |
+| vault\_version | The Vault version to deploy. Releases of this module have a default Vault version set. See the [releases page](https://github.com/skyscrapers/terraform-vault/releases). | string | n/a | yes |
 | vpc\_id | The VPC id to launch the instances in | string | n/a | yes |
 
 ### Output

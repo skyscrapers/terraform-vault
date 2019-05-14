@@ -17,8 +17,7 @@ variable "dns_root" {
 }
 
 variable "vault_version" {
-  description = "The Vault version to deploy"
-  default     = "1.1.1"
+  description = "The Vault version to deploy. Releases of this module have a default Vault version set. See the [releases page](https://github.com/skyscrapers/terraform-vault/releases)."
 }
 
 variable "teleport_version" {
