@@ -32,6 +32,8 @@ run:
       RELEASE_VERSION=`cat release-version/version`
       cd terraform-src-modified
 
+      INITIAL_REFERENCE=`git rev-parse HEAD`
+
       # Update vault_version default to the provided version
       find ./ -type f -name variables.tf -exec sed -ri '/^variable "vault_version"\s*\{/,+2s/(default\s*=\s*)".*"/\1"'${VAULT_VERSION}'"/' {} \;
       # Update readme with the provided vault version
@@ -39,3 +41,4 @@ run:
 
       git diff --exit-code || git commit -am "[CI] Update vault version to ${VAULT_VERSION}"
       git tag $RELEASE_VERSION
+      git checkout $INITIAL_REFERENCE
