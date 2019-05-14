@@ -11,6 +11,9 @@ inputs:
   - name: vault-release
   - name: release-version
 
+outputs:
+  - name: terraform-src-modified
+
 params:
   GIT_AUTHOR_NAME:
   GIT_AUTHOR_EMAIL:
@@ -36,4 +39,3 @@ run:
 
       git diff --exit-code || git commit -am "[CI] Update vault version to ${VAULT_VERSION}"
       git tag $RELEASE_VERSION
-      git push origin $RELEASE_VERSION
