@@ -1,0 +1,29 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: alpine/git
+
+inputs:
+  - name: terraform-src
+  - name: release-version
+
+outputs:
+  - name: terraform-src-modified
+
+run:
+  path: sh
+  args:
+    - -exc
+    - |
+      git clone terraform-src terraform-src-modified
+
+      RELEASE_VERSION=`cat release-version/version`
+      cd terraform-src-modified
+
+      INITIAL_REFERENCE=`git rev-parse HEAD`
+
+      git tag $RELEASE_VERSION
+      git checkout $INITIAL_REFERENCE

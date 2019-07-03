@@ -95,7 +95,7 @@ module "vault" {
 | vault1\_subnet | The subnet ID for the first vault instance | string | n/a | yes |
 | vault2\_subnet | The subnet ID for the second vault instance | string | n/a | yes |
 | vault\_nproc | The amount of nproc to configure vault with. Set this to the amount of CPU cores | string | `"1"` | no |
-| vault\_version | The Vault version to deploy. Releases of this module have a default Vault version set. See the [releases page](https://github.com/skyscrapers/terraform-vault/releases). | string | `"1.1.3"` | no |
+| vault\_version | The Vault version to deploy | string | n/a | yes |
 | vpc\_id | The VPC id to launch the instances in | string | n/a | yes |
 
 ### Output
