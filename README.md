@@ -68,13 +68,8 @@ module "vault" {
 | acme\_server | ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server. | string | `"https://acme-v01.api.letsencrypt.org/directory"` | no |
 | ami | The AMI ID to use for the vault instances | string | n/a | yes |
 | dns\_root | The root domain to configure for vault | string | `"production.skyscrape.rs"` | no |
-| dynamodb\_max\_read\_capacity | The max read capacity of the Vault dynamodb table | string | `"100"` | no |
-| dynamodb\_max\_write\_capacity | The max write capacity of the Vault dynamodb table | string | `"100"` | no |
-| dynamodb\_min\_read\_capacity | The min read capacity of the Vault dynamodb table | string | `"5"` | no |
-| dynamodb\_min\_write\_capacity | The min write capacity of the Vault dynamodb table | string | `"5"` | no |
 | dynamodb\_table\_name\_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `""` | no |
 | ec2\_instances\_cpu\_credits | The type of cpu credits to use | string | `"standard"` | no |
-| enable\_dynamodb\_autoscaling | Enables the autoscaling feature on the Vault dynamodb table | string | `"true"` | no |
 | enable\_dynamodb\_replica\_table | Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider | string | `"false"` | no |
 | enable\_point\_in\_time\_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that [additional charges](https://aws.amazon.com/dynamodb/pricing/) will apply by enabling this setting | string | `"true"` | no |
 | enable\_ui | Enables the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/index.html) | string | `"true"` | no |
@@ -85,8 +80,6 @@ module "vault" {
 | lb\_subnets | The subnets to use for the alb | list | n/a | yes |
 | le\_email | The email address that's going to be used to register to LetsEncrypt | string | n/a | yes |
 | project | Name of the project | string | n/a | yes |
-| replica\_dynamodb\_max\_read\_capacity | The max read capacity of the Vault dynamodb replica table | string | `"5"` | no |
-| replica\_dynamodb\_min\_read\_capacity | The min read capacity of the Vault dynamodb replica table | string | `"5"` | no |
 | teleport\_auth\_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `""` | no |
 | teleport\_node\_sg | The security-group ID of the teleport server | string | `""` | no |
 | teleport\_token\_1 | The Teleport token for the first instance. This can be a dynamic short-lived token | string | `""` | no |
