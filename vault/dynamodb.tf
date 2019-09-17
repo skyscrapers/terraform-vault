@@ -1,6 +1,5 @@
 module "main_dynamodb_table" {
-  source = "/Users/iuri/projects/skyscrapers/terraform-modules/terraform-vault/dynamodb-table"
-  # source                        = "../dynamodb-table"
+  source                        = "../dynamodb-table"
   enable                        = true
   dynamodb_table_name_override  = var.dynamodb_table_name_override
   environment                   = var.environment
@@ -9,8 +8,7 @@ module "main_dynamodb_table" {
 }
 
 module "replica_dynamodb_table" {
-  source = "/Users/iuri/projects/skyscrapers/terraform-modules/terraform-vault/dynamodb-table"
-  # source                        = "../dynamodb-table"
+  source                        = "../dynamodb-table"
   enable                        = var.enable_dynamodb_replica_table
   dynamodb_table_name_override  = var.dynamodb_table_name_override
   environment                   = var.environment
