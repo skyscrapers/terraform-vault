@@ -32,8 +32,8 @@ resource "aws_security_group_rule" "vault_to_world" {
 }
 
 resource "aws_security_group" "alb" {
-  name_prefix = "vault_alb_${var.project}_"
-  description = "Security group for Vault ALB ${var.project}-${var.environment}"
+  name        = "sg_alb_${var.project}_${var.environment}_vault"
+  description = "Security group for ALB ${var.project}-${var.environment}-vault-alb"
   vpc_id      = var.vpc_id
 }
 

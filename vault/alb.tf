@@ -1,12 +1,12 @@
 resource "aws_lb" "alb" {
-  name            = "vault-${var.project}-${var.environment}"
+  name            = "vault-${var.environment}-${var.project}-alb"
   internal        = var.lb_internal
   subnets         = var.lb_subnets
   security_groups = [aws_security_group.alb.id]
 }
 
 resource "aws_lb_target_group" "main" {
-  name     = "vault-main-${var.project}-${var.environment}"
+  name     = "vault-main-${var.environment}-${var.project}"
   port     = 8200
   protocol = "HTTPS"
   vpc_id   = var.vpc_id
@@ -37,7 +37,7 @@ resource "aws_lb_listener" "https" {
 }
 
 resource "aws_lb_target_group" "vault1" {
-  name     = "vault1-${var.project}-${var.environment}"
+  name     = "vault1-${var.environment}-${var.project}"
   port     = 8200
   protocol = "HTTPS"
   vpc_id   = var.vpc_id
@@ -77,7 +77,7 @@ resource "aws_lb_listener_rule" "vault1" {
 }
 
 resource "aws_lb_target_group" "vault2" {
-  name     = "vault2-${var.project}-${var.environment}"
+  name     = "vault2-${var.environment}-${var.project}"
   port     = 8200
   protocol = "HTTPS"
   vpc_id   = var.vpc_id
