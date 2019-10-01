@@ -24,7 +24,9 @@ module "replica_dynamodb_table" {
 
 resource "aws_dynamodb_global_table" "vault_global_table" {
   count = var.enable_dynamodb_replica_table ? 1 : 0
-  name  = module.main_dynamodb_table.table_name
+
+  # Fake dependency for both child dynamodb tables
+  name = [module.main_dynamodb_table.table_name, module.replica_dynamodb_table.table_name][0]
 
   replica {
     region_name = data.aws_region.main.name
