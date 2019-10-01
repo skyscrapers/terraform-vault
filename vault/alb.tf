@@ -24,6 +24,10 @@ resource "aws_lb_target_group" "main" {
     path              = "/v1/sys/health"
     healthy_threshold = 4
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_lb_listener" "https" {
@@ -55,6 +59,10 @@ resource "aws_lb_target_group" "vault1" {
     protocol          = "HTTPS"
     path              = "/"
     healthy_threshold = 4
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -96,6 +104,10 @@ resource "aws_lb_target_group" "vault2" {
     protocol          = "HTTPS"
     path              = "/"
     healthy_threshold = 4
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
