@@ -82,14 +82,14 @@ data "template_file" "install" {
   vars = {
     download_url_vault    = "https://releases.hashicorp.com/vault/${var.vault_version}/vault_${var.vault_version}_linux_386.zip"
     download_url_teleport = "https://get.gravitational.com/teleport-v${var.teleport_version}-linux-amd64-bin.tar.gz"
-    teleport_auth_server  = var.teleport_auth_server
+    teleport_auth_server  = var.teleport_auth_server == null ? "" : var.teleport_auth_server
   }
 }
 
 module "teleport_vault1" {
   source      = "github.com/skyscrapers/terraform-teleport//teleport-bootstrap-script?ref=5.0.1"
-  auth_server = var.teleport_auth_server
-  auth_token  = var.teleport_token_1
+  auth_server = var.teleport_auth_server == null ? "" : var.teleport_auth_server
+  auth_token  = var.teleport_token_1 == null ? "" : var.teleport_token_1
   function    = "vault1"
   environment = var.environment
   project     = var.project
@@ -102,8 +102,8 @@ module "teleport_vault1" {
 
 module "teleport_vault2" {
   source      = "github.com/skyscrapers/terraform-teleport//teleport-bootstrap-script?ref=5.0.1"
-  auth_server = var.teleport_auth_server
-  auth_token  = var.teleport_token_2
+  auth_server = var.teleport_auth_server == null ? "" : var.teleport_auth_server
+  auth_token  = var.teleport_token_2 == null ? "" : var.teleport_token_2
   function    = "vault2"
   environment = var.environment
   project     = var.project
