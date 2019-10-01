@@ -18,3 +18,8 @@ variable "enable_point_in_time_recovery" {
 variable "enable" {
   type = bool
 }
+
+variable "tags" {
+  default = null
+  type    = map(string)
+}

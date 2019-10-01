@@ -3,6 +3,7 @@ resource "aws_lb" "alb" {
   internal        = var.lb_internal
   subnets         = var.lb_subnets
   security_groups = [aws_security_group.alb.id]
+  tags            = local.tags
 }
 
 resource "aws_lb_target_group" "main" {
@@ -10,6 +11,7 @@ resource "aws_lb_target_group" "main" {
   port     = 8200
   protocol = "HTTPS"
   vpc_id   = var.vpc_id
+  tags     = local.tags
 
   stickiness {
     enabled = false
@@ -41,6 +43,7 @@ resource "aws_lb_target_group" "vault1" {
   port     = 8200
   protocol = "HTTPS"
   vpc_id   = var.vpc_id
+  tags     = local.tags
 
   stickiness {
     enabled = false
@@ -81,6 +84,7 @@ resource "aws_lb_target_group" "vault2" {
   port     = 8200
   protocol = "HTTPS"
   vpc_id   = var.vpc_id
+  tags     = local.tags
 
   stickiness {
     enabled = false

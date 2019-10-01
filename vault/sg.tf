@@ -2,6 +2,7 @@ resource "aws_security_group" "vault" {
   name_prefix = "vault_${var.project}_"
   description = "vault specific rules"
   vpc_id      = var.vpc_id
+  tags        = local.tags
 }
 
 resource "aws_security_group_rule" "vault_from_alb" {
@@ -35,6 +36,7 @@ resource "aws_security_group" "alb" {
   name        = "sg_alb_${var.project}_${var.environment}_vault"
   description = "Security group for ALB ${var.project}-${var.environment}-vault-alb"
   vpc_id      = var.vpc_id
+  tags        = local.tags
 }
 
 resource "aws_security_group_rule" "sg_alb_https_ingress" {

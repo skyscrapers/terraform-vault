@@ -5,6 +5,7 @@ module "main_dynamodb_table" {
   environment                   = var.environment
   project                       = var.project
   enable_point_in_time_recovery = var.enable_point_in_time_recovery
+  tags                          = local.tags
 }
 
 module "replica_dynamodb_table" {
@@ -14,6 +15,7 @@ module "replica_dynamodb_table" {
   environment                   = var.environment
   project                       = var.project
   enable_point_in_time_recovery = var.enable_point_in_time_recovery
+  tags                          = local.tags
 
   providers = {
     aws = aws.replica
