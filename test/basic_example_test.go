@@ -103,7 +103,7 @@ func TestGlobalTableExample(t *testing.T) {
 				"key_name":                os.Getenv("TEST_KEY_NAME"),
 				"vault_version":           os.Getenv("TEST_VAULT_VERSION"),
 				"project":                 projectName,
-				"acme_server":             "https://acme-staging.api.letsencrypt.org/directory",
+				"acme_server":             "https://acme-staging-v02.api.letsencrypt.org/directory",
 				"lb_internal":             false,
 				"dynamodb_replica_region": "eu-west-2",
 			},
