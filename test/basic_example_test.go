@@ -2,16 +2,16 @@ package test
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"testing"
 	"time"
-	"net/http"
 
 	"github.com/gruntwork-io/terratest/modules/logger"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/retry"
 	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/gruntwork-io/terratest/modules/test-structure"
+	test_structure "github.com/gruntwork-io/terratest/modules/test-structure"
 	"github.com/hashicorp/vault/api"
 )
 
@@ -58,7 +58,7 @@ func TestBasicExample(t *testing.T) {
 				"key_name":       os.Getenv("TEST_KEY_NAME"),
 				"vault_version":  os.Getenv("TEST_VAULT_VERSION"),
 				"project":        projectName,
-				"acme_server":    "https://acme-staging.api.letsencrypt.org/directory",
+				"acme_server":    "https://acme-staging-v02.api.letsencrypt.org/directory",
 				"lb_internal":    false,
 			},
 
@@ -103,7 +103,7 @@ func TestGlobalTableExample(t *testing.T) {
 				"key_name":                os.Getenv("TEST_KEY_NAME"),
 				"vault_version":           os.Getenv("TEST_VAULT_VERSION"),
 				"project":                 projectName,
-				"acme_server":             "https://acme-staging.api.letsencrypt.org/directory",
+				"acme_server":             "https://acme-staging-v02.api.letsencrypt.org/directory",
 				"lb_internal":             false,
 				"dynamodb_replica_region": "eu-west-2",
 			},

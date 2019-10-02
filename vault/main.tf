@@ -9,5 +9,12 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "main" {}
 
 data "aws_region" "replica" {
-  provider = "aws.replica"
+  provider = aws.replica
+}
+
+locals {
+  tags = {
+    Environment = var.environment
+    Project     = var.project
+  }
 }

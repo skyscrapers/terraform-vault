@@ -68,26 +68,26 @@ module "vault" {
 | acme\_server | ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server. | string | `"https://acme-v01.api.letsencrypt.org/directory"` | no |
 | ami | The AMI ID to use for the vault instances | string | n/a | yes |
 | dns\_root | The root domain to configure for vault | string | `"production.skyscrape.rs"` | no |
-| dynamodb\_table\_name\_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `""` | no |
+| dynamodb\_table\_name\_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `null` | no |
 | ec2\_instances\_cpu\_credits | The type of cpu credits to use | string | `"standard"` | no |
-| enable\_dynamodb\_replica\_table | Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider | string | `"false"` | no |
-| enable\_point\_in\_time\_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that [additional charges](https://aws.amazon.com/dynamodb/pricing/) will apply by enabling this setting | string | `"true"` | no |
-| enable\_ui | Enables the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/index.html) | string | `"true"` | no |
+| enable\_dynamodb\_replica\_table | Setting this to true will create a DynamoDB table on another region and enable global tables for replication. The replica table is going to be managed by the 'replica' Terraform provider | bool | `false` | no |
+| enable\_point\_in\_time\_recovery | Whether to enable point-in-time recovery - note that it can take up to 10 minutes to enable for new tables. Note that [additional charges](https://aws.amazon.com/dynamodb/pricing/) will apply by enabling this setting | bool | `true` | no |
+| enable\_ui | Enables the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/index.html) | bool | `true` | no |
 | environment | Name of the environment where to deploy Vault (just for naming reasons) | string | n/a | yes |
 | instance\_type | The instance type to use for the vault servers | string | `"t2.micro"` | no |
-| key\_name | Name of the sshkey to deploy on the vault instances | string | n/a | yes |
-| lb\_internal | Should the ALB be created as an internal Loadbalancer | string | `"false"` | no |
-| lb\_subnets | The subnets to use for the alb | list | n/a | yes |
+| key\_name | Name of the sshkey to deploy on the vault instances | string | `null` | yes |
+| lb\_internal | Should the ALB be created as an internal Loadbalancer | bool | `false` | no |
+| lb\_subnets | The subnets to use for the alb | list(string) | n/a | yes |
 | le\_email | The email address that's going to be used to register to LetsEncrypt | string | n/a | yes |
 | project | Name of the project | string | n/a | yes |
-| teleport\_auth\_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `""` | no |
-| teleport\_node\_sg | The security-group ID of the teleport server | string | `""` | no |
-| teleport\_token\_1 | The Teleport token for the first instance. This can be a dynamic short-lived token | string | `""` | no |
-| teleport\_token\_2 | The Teleport token for the second instance. This can be a dynamic short-lived token | string | `""` | no |
+| teleport\_auth\_server | The hostname or ip of the Teleport auth server. If empty, Teleport integration will be disabled (default). | string | `null` | no |
+| teleport\_node\_sg | The security-group ID of the teleport server | string | `null` | no |
+| teleport\_token\_1 | The Teleport token for the first instance. This can be a dynamic short-lived token | string | `null` | no |
+| teleport\_token\_2 | The Teleport token for the second instance. This can be a dynamic short-lived token | string | `null` | no |
 | teleport\_version | The Teleport version to deploy | string | `"3.1.8"` | no |
 | vault1\_subnet | The subnet ID for the first vault instance | string | n/a | yes |
 | vault2\_subnet | The subnet ID for the second vault instance | string | n/a | yes |
-| vault\_nproc | The amount of nproc to configure vault with. Set this to the amount of CPU cores | string | `"1"` | no |
+| vault\_nproc | The amount of nproc to configure vault with. Set this to the amount of CPU cores | number | `1` | no |
 | vault\_version | The Vault version to deploy | string | n/a | yes |
 | vpc\_id | The VPC id to launch the instances in | string | n/a | yes |
 
@@ -97,7 +97,7 @@ module "vault" {
 |------|-------------|
 | alb\_arn | The alb ARN |
 | alb\_id | The alb id |
-| alb\_main\_target\_group | The default alb target group ARN |
+| alb\_main\_target\_group | The main ALB target group ARN |
 | alb\_sg\_id | The alb security group ID |
 | alb\_vault1\_target\_group | The vault1 target group ARN |
 | alb\_vault2\_target\_group | The vault2 target group ARN |
@@ -117,6 +117,29 @@ module "vault" {
 | vault\_route53\_record | The main vault route53 record id |
 
 ### Upgrades
+
+#### From v4.x to v5.x
+
+In version v5.0.0 of this module, we switched to the new Terraform 0.12 syntax, and introduced some breaking changes along the way.
+
+We've moved around some resources inside the module, like the ALB and related resources, so you'll need to tweak the state to avoid having to replace everything. We've also normalized some resource names, for example the ALB target groups will need to be replaced.
+
+Here's the Terraform commands to run to prepare the state:
+
+```shell
+# Import ALB into the new resource address. You'll need to find the current ALB ARN
+terraform import -var-file production.tfvars module.ha_vault.aws_lb.alb ALB_ARN
+# Import ALB https listener into the new resource address. You'll need to finde the current listener ARN
+terraform import -var-file production.tfvars module.ha_vault.aws_lb_listener.https HTTPS_ALB_LISTENER_ARN
+# Remove the ALB and https listener from the old addresses
+terraform state rm module.ha_vault.module.alb.aws_alb_listener.https module.ha_vault.module.alb.aws_alb.alb
+# Move ALB security group and its rules
+terraform state mv module.ha_vault.module.alb.aws_security_group.sg_alb module.ha_vault.aws_security_group.alb
+terraform state mv module.ha_vault.module.alb.aws_security_group_rule.sg_alb_https_ingress module.ha_vault.aws_security_group_rule.sg_alb_https_ingress
+terraform state mv module.ha_vault.module.alb.aws_security_group_rule.sg_alb_target_egress module.ha_vault.aws_security_group_rule.sg_alb_target_egress
+```
+
+Now you can apply terraform normally. There might be a slight downtime, as the target groups will need to be replaced, but shouldn't be more than a few seconds.
 
 #### From v2.x to v3.x
 

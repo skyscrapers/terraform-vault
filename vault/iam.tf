@@ -95,15 +95,15 @@ data "aws_iam_policy_document" "vault" {
 resource "aws_iam_policy" "vault" {
   name   = "vault_instance_policy_${var.environment}"
   path   = "/"
-  policy = "${data.aws_iam_policy_document.vault.json}"
+  policy = data.aws_iam_policy_document.vault.json
 }
 
 resource "aws_iam_role_policy_attachment" "vault1" {
-  role       = "${module.vault1.role_id}"
-  policy_arn = "${aws_iam_policy.vault.arn}"
+  role       = module.vault1.role_id
+  policy_arn = aws_iam_policy.vault.arn
 }
 
 resource "aws_iam_role_policy_attachment" "vault2" {
-  role       = "${module.vault2.role_id}"
-  policy_arn = "${aws_iam_policy.vault.arn}"
+  role       = module.vault2.role_id
+  policy_arn = aws_iam_policy.vault.arn
 }

@@ -7,7 +7,7 @@ variable "instance_type" {
 }
 
 variable "lb_internal" {
-  default = "true"
+  default = true
 }
 
 variable "vault_version" {}
@@ -17,7 +17,7 @@ variable "cidr_block" {
 }
 
 variable "custom_ami" {
-  default = ""
+  default = null
 }
 
 variable "project" {}
@@ -27,7 +27,7 @@ variable "acme_server" {
 }
 
 variable "key_name" {
-  default = ""
+  default = null
 }
 
 variable "dynamodb_replica_region" {}

@@ -9,17 +9,18 @@ variable "instance_type" {
 }
 
 variable "lb_internal" {
-  default = "true"
+  default = true
 }
 
-variable "vault_version" {}
+variable "vault_version" {
+}
 
 variable "cidr_block" {
   default = "172.30.0.0/16"
 }
 
 variable "custom_ami" {
-  default = ""
+  default = null
 }
 
 variable "project" {
@@ -30,7 +31,8 @@ variable "acme_server" {
 }
 
 variable "key_name" {
-  default = ""
+  default = null
 }
 
-variable "le_email" {}
+variable "le_email" {
+}

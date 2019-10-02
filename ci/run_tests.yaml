@@ -4,36 +4,38 @@ image_resource:
   type: docker-image
   source:
     repository: golang
-    tag: '1.9-alpine'
+    tag: "1.12-alpine"
 
 params:
-  AWS_DEFAULT_REGION: 'eu-west-1'
+  AWS_DEFAULT_REGION: "eu-west-1"
   AWS_ACCESS_KEY_ID:
   AWS_SECRET_ACCESS_KEY:
   AWS_SESSION_TOKEN:
-  TEST_R53_ZONE_NAME: ''
-  TEST_ACM_ARN: ''
-  TEST_LE_EMAIL: 'something@example.com'
+  TEST_R53_ZONE_NAME: ""
+  TEST_ACM_ARN: ""
+  TEST_LE_EMAIL: "something@example.com"
 
 inputs:
-- name: terraform-src
-  path: gopath/src/github.com/skyscrapers/terraform-vault
-- name: vault-release
-- name: terraform-release
+  - name: terraform-src
+    path: gopath/src/github.com/skyscrapers/terraform-vault
+  - name: vault-release
+  - name: terraform-release
 
 run:
   path: sh
   args:
     - -exc
     - |
-      apk add --update unzip curl dep git
+      apk add --update unzip curl dep git build-base
 
       # Unzip terraform binary
       unzip terraform-release/terraform_*_linux_amd64.zip -d /usr/local/bin
       chmod +x /usr/local/bin/terraform
 
       # Set the Vault version env variable
-      export TEST_VAULT_VERSION="`cat vault-release/version`"
+      # Sometimes vault versions can look like "1.2.3+ent". Until we find
+      # a better solution to deal with this versions, we'll clean it up with `cut`
+      export TEST_VAULT_VERSION="`cat vault-release/version | cut -d+ -f1`"
 
       export GOPATH=$PWD/gopath
 
