@@ -55,7 +55,7 @@ resource "aws_lb_target_group" "vault1" {
   }
 
   health_check {
-    matcher           = "404"
+    matcher           = "200-499" # we want this target group to active as long as Vault is running, no matter its state
     protocol          = "HTTPS"
     path              = "/"
     healthy_threshold = 4
@@ -100,7 +100,7 @@ resource "aws_lb_target_group" "vault2" {
   }
 
   health_check {
-    matcher           = "404"
+    matcher           = "200-499" # we want this target group to active as long as Vault is running, no matter its state
     protocol          = "HTTPS"
     path              = "/"
     healthy_threshold = 4
