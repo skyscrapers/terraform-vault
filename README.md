@@ -65,7 +65,7 @@ module "vault" {
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | acm\_arn | The ACM ARN to use on the alb | string | n/a | yes |
-| acme\_server | ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server. | string | `"https://acme-v01.api.letsencrypt.org/directory"` | no |
+| acme\_server | ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server. | string | `"https://acme-v02.api.letsencrypt.org/directory"` | no |
 | ami | The AMI ID to use for the vault instances | string | n/a | yes |
 | dns\_root | The root domain to configure for vault | string | `"production.skyscrape.rs"` | no |
 | dynamodb\_table\_name\_override | Override Vault's DynamoDB table name with this variable. This module will generate a name if this is left empty (default behavior) | string | `null` | no |

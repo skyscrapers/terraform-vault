@@ -111,7 +111,7 @@ variable "dynamodb_table_name_override" {
 
 variable "acme_server" {
   description = "ACME server where to point `certbot` on the Teleport server to fetch an SSL certificate. Useful if you want to point to the letsencrypt staging server."
-  default     = "https://acme-v01.api.letsencrypt.org/directory"
+  default     = "https://acme-v02.api.letsencrypt.org/directory"
   type        = string
 }
 
