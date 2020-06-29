@@ -1,6 +1,8 @@
-# Terraform Vault
+# Terraform Vault (UNMAINTAINED)
 
 [![ci.skyscrape.rs](https://ci.skyscrape.rs/api/v1/teams/skyscrapers/pipelines/terraform-modules/jobs/terraform-vault-test-master/badge)](https://ci.skyscrape.rs/teams/skyscrapers/pipelines/terraform-modules?groups=terraform-vault)
+
+**UNMAINTAINED: this project is not being actively maintained anymore. It works as it is, but we won't be working on new features or bug fixes anymore. If you are using this module and are willing to maintain it, open an issue and we'll be more than happy to transfer the repo.**
 
 Terraform module(s) to setup Vault on AWS
 
